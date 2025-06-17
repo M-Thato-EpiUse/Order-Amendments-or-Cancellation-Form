@@ -1,7 +1,353 @@
 <mvc:View controllerName="com.epiuse.zhrorderamend.controller.Create-Change-Form"
-    xmlns:mvc="sap.ui.core.mvc" displayBlock="true"
-    xmlns="sap.m">
-    <Page id="page" title="{i18n>title}">
-        <content />
+ xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:l="sap.ui.layout"
+	xmlns:form="sap.ui.layout.form"
+    xmlns:core="sap.ui.core"
+    xmlns:unified="sap.ui.unified"
+    xmlns:upload="sap.m.upload">
+    <Page id="create-change-form" title="{i18n>title}" showHeader="false">
+
+        <!-- Custom Header Toolbar -->
+        <Toolbar class="header-toolbar" height="70px">
+            <HBox class="header-panel" width="100%" justifyContent="SpaceBetween" alignItems="Center">
+                <HBox alignItems="Center" justifyContent="Start"/>
+
+                <HBox class="headertext-container" alignItems="Center" justifyContent="Center">
+                    <Title id="ttlMcLeanHeading" level="H3" titleStyle="H3" text="Order Amendments or Cancelation Application Form" />
+                </HBox>
+
+                <HBox alignItems="Center" justifyContent="End" renderType="Bare"/>
+            </HBox>
+        </Toolbar>
+
+        <content>
+            <VBox>
+               
+                <!-- Filled by the sales (Input by Initiator) -->
+                <HBox class="sapUiSmallMarginTop" width="100%" justifyContent="Center">
+                    <HBox class="roundedBorderRadius whiteBackground sapUiResponsiveContentPadding" width="90%" justifyContent="SpaceAround">
+                        <HBox width="100%" justifyContent="Center">
+                            <VBox width="50%">
+                                <form:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    adjustLabelSpan="false"
+                                    labelSpanXL="4"
+                                    labelSpanL="4"
+                                    labelSpanM="4"
+                                    labelSpanS="12"
+                                    columnsXL="1"
+                                    columnsL="1"
+                                    columnsM="1">
+                                    <form:content>
+                                        <Label text="Requested By" />
+                                        <Text text="Lizette Pretorius" />
+
+                                        <Label text="Customer Name" />
+                                        <Input width="300px" value="" />
+
+                                        <Label text="Branch/Sector Name" />
+                                        <Input width="300px" value="" />
+
+                                        <Label text="PO Date" />
+                                        <DatePicker width="300px" placeholder="Enter Date" />
+                                    </form:content>
+                                </form:SimpleForm>
+                            </VBox>
+
+                            <VBox width="50%">
+                                <form:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    adjustLabelSpan="false"
+                                    labelSpanXL="4"
+                                    labelSpanL="4"
+                                    labelSpanM="4"
+                                    labelSpanS="12"
+                                    columnsXL="1"
+                                    columnsL="1"
+                                    columnsM="1">
+                                    <form:content>
+                                        <Label text="Requested Date" />
+                                        <Text text="17/03/2025" />
+
+                                        <Label text="PO/Contract No." />
+                                        <Input width="300px" value="" />
+
+                                        <Label text="Sales Order No." />
+                                        <Input width="300px" value="" />
+
+                                        <Label text="Request Type" />
+                                        <HBox>
+                                            <CheckBox class="sapUiTinyMarginEnd" text="Amendment" />
+                                            <CheckBox text="Cancelation" />
+                                        </HBox>
+                                    </form:content>
+                                </form:SimpleForm>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                </HBox>
+
+                <!-- Change From/Change To -->
+                <HBox class="sapUiSmallMarginTop" width="100%" justifyContent="Center">
+                    <HBox width="100%" justifyContent="SpaceAround">
+                        <VBox width="100%" alignItems="Center" justifyContent="Center">
+                            <VBox class="sapUiSmallMarginBottom" width="90%">
+                                <Table id="tblChangeFrom" class="customHeaderHeight" headerText="Change From" inset="false" items="{/changeFromItems}">
+                                    <columns>
+                                        <Column width="5em">
+                                            <Text text="Line Item No." />
+                                        </Column>
+                                        <Column width="10em">
+                                            <Text text="Unique Code" />
+                                        </Column>
+                                        <Column>
+                                            <Text text="Quantity" />
+                                        </Column>
+                                        <Column>
+                                            <Text text="Price" />
+                                        </Column>
+                                        <Column width="10em">
+                                            <Text text="Total Amount (R)" />
+                                        </Column>
+                                        <Column width="10em">
+                                            <Text text="Stock Total Amount (R)" />
+                                        </Column>
+                                        <Column width="12em">
+                                            <Text text="Previous Customer Requested Delivery Date" />
+                                        </Column>
+                                    </columns>
+
+                                    <items>
+                                        <ColumnListItem>
+                                            <cells>        
+                                                <Text text="{lineNumber}" />
+                                                <Input value="{uniqueCode}" />
+
+                                                <HBox>
+                                                    <Input type="Number" value="{quantity}" />
+                                                    <ComboBox selectedKey="{unit}" width="80px">
+                                                        <core:Item key="M" text="M" />
+                                                        <core:Item key="KG" text="KG" />
+                                                    </ComboBox>
+                                                </HBox>
+
+                                                <HBox>
+                                                    <Input type="Number" value="{price}" />
+                                                    <ComboBox selectedKey="{unit}" width="80px" >
+                                                        <core:Item key="R/M" text="R/M" />
+                                                        <core:Item key="R/KG" text="R/KG" />
+                                                    </ComboBox>
+                                                </HBox>
+
+                                                <Input type="Number" value="{totalAmount}" />
+                                                <Input type="Number" value="{stockAmount}" />
+                                                <DatePicker placeholder="Enter Date" />
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                                <HBox id="hbxChangeFrom" class="sapUiResponsiveContentPadding whiteBackground" visible="false">
+                                    <HBox justifyContent="Center" width="58%" >
+                                        <Title titleStyle="H6" text="Total Amount" />
+                                    </HBox>
+                                    <HBox justifyContent="Center" >
+                                        <Title titleStyle="H6" text="R 142 956.00" />
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+
+                            <VBox width="90%">
+                                <Table id="tblChangeTo" class="customHeaderHeight" headerText="Change To" inset="false" items="{/changeToItems}" >
+                                    <columns>
+                                        <Column width="5em">
+                                            <Text text="Line Item No." />
+                                        </Column>
+                                        <Column width="10em">
+                                            <Text text="Unique Code" />
+                                        </Column>
+                                        <Column>
+                                            <Text text="New Quantity" />
+                                        </Column>
+                                        <Column>
+                                            <Text text="New Price" />
+                                        </Column>
+                                        <Column>
+                                            <Text text="Total Amount (R)" />
+                                        </Column>
+                                        <Column width="12em">
+                                            <Text text="New Customer Requested Delivery Date" />
+                                        </Column>
+                                    </columns>
+
+                                    <items>
+                                        <ColumnListItem>
+                                            <cells>       
+                                                <Text text="{lineNumber}" />
+                                                <Input value="{uniqueCode}" />
+
+                                                <HBox>
+                                                    <Input type="Number" value="{quantity}" />
+                                                    <ComboBox selectedKey="{unit}" width="80px">
+                                                        <core:Item key="M" text="M" />
+                                                        <core:Item key="KG" text="KG" />
+                                                    </ComboBox>
+                                                </HBox>
+
+                                                <HBox>
+                                                    <Input type="Number" value="{price}" />
+                                                    <ComboBox selectedKey="{unit}" width="80px" >
+                                                        <core:Item key="R/M" text="R/M" />
+                                                        <core:Item key="R/KG" text="R/KG" />
+                                                    </ComboBox>
+                                                </HBox>
+
+                                                <Input type="Number" value="{totalAmount}" />
+                                                <DatePicker placeholder="Enter Date" />
+                                            </cells>
+                                        </ColumnListItem>
+                                    </items>
+                                </Table>
+                                <HBox id="hbxChangeTo" class="sapUiResponsiveContentPadding whiteBackground" visible="false">
+                                    <HBox justifyContent="Center" width="63%" >
+                                        <Title titleStyle="H6" text="Total Amount" />
+                                    </HBox>
+                                    <HBox justifyContent="Center">
+                                        <Title titleStyle="H6" text="R 142 956.00" />
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+                        </VBox>
+                    </HBox>
+                </HBox>
+
+                <!-- Reason of Amendments -->
+                <HBox class="sapUiSmallMarginTop" width="100%" justifyContent="Center">
+                    <HBox width="90%" justifyContent="SpaceAround">
+                        <HBox width="100%" justifyContent="Start">
+                            <VBox width="100%">
+                                <form:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    adjustLabelSpan="false"
+                                    labelSpanXL="2"
+                                    labelSpanL="2"
+                                    labelSpanM="2"
+                                    labelSpanS="12"
+                                    columnsXL="1"
+                                    columnsL="1"
+                                    columnsM="1">
+                                    <form:content>
+                                        <Label text="Reason of Amendments" />
+                                        <TextArea id="textAreaWithoutBinding" value="" showExceededText="true" maxLength="2000" width="100%" height="100px" liveChange="handleLiveChange" valueLiveUpdate="true" />
+                                    </form:content>
+                                </form:SimpleForm>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                </HBox>
+
+                <!-- Order Progress -->
+                <HBox class="sapUiSmallMarginTop" width="100%" justifyContent="Center">
+                    <HBox width="90%" justifyContent="SpaceAround">
+                        <HBox width="100%" justifyContent="Start">
+                            <VBox width="100%">
+                                <form:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    adjustLabelSpan="false"
+                                    labelSpanXL="2"
+                                    labelSpanL="2"
+                                    labelSpanM="2"
+                                    labelSpanS="12"
+                                    columnsXL="1"
+                                    columnsL="1"
+                                    columnsM="1">
+                                    <form:content>
+                                        <Label text="Order Progress" />
+                                            <VBox>
+                                                <CheckBox id="chk1" text="Not planned nor manufactured" select="onOrderProgressSelect"/>
+                                                <CheckBox id="chk2" text="Planned but not yet manufactured" select="onOrderProgressSelect"/>
+                                                <CheckBox id="chk3" text="Manufacturing but can be allocated to other orders" select="onOrderProgressSelect"/>
+                                                <CheckBox id="chk4" text="Manufacturing and cannot be allocated to other orders" select="onOrderProgressSelect"/>
+                                                <CheckBox id="chk5" text="Standard product and is promised to be sold out quickly" select="onOrderProgressSelect"/>
+                                                <CheckBox id="chk6" text="Nonstandard product and is promised to be sold out quickly" select="onOrderProgressSelect"/>
+                                                <CheckBox id="chk7" text="Nonstandard product and cannot be promised to be sold out quickly" select="onOrderProgressSelect"/>
+                                            </VBox>
+                                    </form:content>
+                                </form:SimpleForm>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                </HBox>
+
+                <!-- Plant Confirmation -->
+                <HBox class="sapUiSmallMarginTop sapUiSmallMarginBottom" width="100%" justifyContent="Center">
+                    <HBox width="90%" justifyContent="SpaceAround">
+                        <HBox width="100%" justifyContent="Start">
+                            <VBox width="100%">
+                                <form:SimpleForm
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    adjustLabelSpan="false"
+                                    labelSpanXL="8"
+                                    labelSpanL="8"
+                                    labelSpanM="8"
+                                    labelSpanS="12"
+                                    columnsXL="1"
+                                    columnsL="1"
+                                    columnsM="1">
+                                    <form:content>
+                                        <VBox>
+                                            <Label text="Plant confirmation (Written email attached to this application form can be counted as the confirmation from plant): Yes" />
+
+                                            <upload:UploadSet id="usAttach1" showIcons="true" uploadEnabled="true" terminationEnabled="true"
+                                                uploadUrl="/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet" instantUpload="true" items="{path: 'oModelAttach>/items' }"
+                                                beforeUploadStarts="onBeforeUploadStarts" uploadCompleted="onUploadComplete" maxFileSize="5">
+                                                <upload:items>
+                                                    <upload:UploadSetItem fileName="{oModelAttach>fileName}" visibleRemove="true" removePressed="onRemovePressed">
+                                                        <upload:attributes>
+                                                            <ObjectAttribute title="File Description" text="{oModelAttach>fileName}"/>
+                                                        </upload:attributes>
+                                                    </upload:UploadSetItem>
+                                                </upload:items>
+                                            </upload:UploadSet>
+                                        </VBox>
+                                        
+                                    </form:content>
+                                </form:SimpleForm>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                </HBox>
+
+                 <!-- Attachment Upload -->
+                <HBox id="hbxUploadDocument" class="sapUiSmallMarginBottom" width="100%" justifyContent="Center" visible="false">
+                    <HBox width="90%" justifyContent="SpaceAround">
+                        <HBox width="100%" justifyContent="Start">
+                            <VBox width="100%">
+                                <form:SimpleForm
+                                    class="sapUiTinyMarginTop"
+                                    layout="ResponsiveGridLayout"
+                                    editable="true"
+                                    title="Upload Email Attachment"
+                                    adjustLabelSpan="false"
+                                    labelSpanXL="2"
+                                    labelSpanL="2"
+                                    labelSpanM="2"
+                                    labelSpanS="5">      
+                                    <VBox>
+                                        <unified:FileUploader id="ufuUploadedDocument" name="fileUpload" placeholder="Choose file" width="500px" change="onDocumentChange" class="sapUiSmallMarginTop"/>
+                                        <Button id="btnUploadFile" text="Upload" press="onUploadAttachment" enabled="false" icon="sap-icon://upload-to-cloud" class="sapUiTinyMarginTop"/>
+                                    </VBox>   
+                                </form:SimpleForm> 
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                </HBox>
+            </VBox>
+        </content>
     </Page>
 </mvc:View>

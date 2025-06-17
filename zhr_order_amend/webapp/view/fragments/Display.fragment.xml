@@ -1,0 +1,363 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:l="sap.ui.layout" xmlns:f="sap.ui.layout.form" xmlns:tree="sap.ui.table"
+	xmlns:u="sap.ui.unified" xmlns:core="sap.ui.core" xmlns:upload="sap.m.upload">
+	<VBox class="sapUiSmallMargin">
+		<f:Form id="displayForm" editable="false" title="Form Details">
+			<f:layout>
+				<f:ResponsiveGridLayout labelSpanXL="3" labelSpanL="3" labelSpanM="3" labelSpanS="12" adjustLabelSpan="false" emptySpanXL="4" emptySpanL="4"
+					emptySpanM="4" emptySpanS="0" columnsXL="1" columnsL="1" columnsM="1" singleContainerFullSize="false"/>
+			</f:layout>
+			<f:formContainers>
+				<f:FormContainer title="{i18n>xfldGenDet}">
+					<f:formElements>
+						<!--Customer Tender Number-->
+						<f:FormElement label="{i18n>xfldCustTendNo}">
+							<f:fields>
+								<Text text="{formDetails>/customerTenderNumber}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Closing Date and Time-->
+						<f:FormElement label="{i18n>xfldClosingDateTime}">
+							<f:fields>
+								<Text text="{parts: ['formDetails>/closingDateTime'], formatter: '.formatter.formatDateTime'}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Responsible Person-->
+						<f:FormElement label="{i18n>xfldResponsiblePerson}">
+							<f:fields>
+								<Text text="{formDetails>/responsiblePerson}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Validity Period-->
+						<f:FormElement label="{i18n>xfldValidityPeriodStart}">
+							<f:fields>
+								<Text text="{parts: ['formDetails>/validityPeriodStart'], formatter: '.formatter.formatDateTime'}"/>
+							</f:fields>
+						</f:FormElement>
+						<f:FormElement label="{i18n>xfldValidityPeriodEnd}">
+							<f:fields>
+								<Text text="{parts: ['formDetails>/validityPeriodEnd'], formatter: '.formatter.formatDateTime'}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Customer Name-->
+						<f:FormElement label="{i18n>xfldCustomerName}">
+							<f:fields>
+								<Text text="{formDetails>/customerName}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Contract Name and Total Value-->
+						<f:FormElement label="{i18n>xfldContractName}">
+							<f:fields>
+								<Text text="{formDetails>/contractNameValue}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--MBD Clause-->
+						<f:FormElement label="{i18n>xcklMBDClause}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/mbdClause}" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Lawyer Comment Required-->
+						<f:FormElement label="{i18n>xfldLawyerCom}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/lawyerComReq}" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Contract Type-->
+						<f:FormElement label="{i18n>xfldContractType}">
+							<f:fields>
+								<RadioButtonGroup selectedIndex="{formDetails>/contractType}" editable="false">
+									<RadioButton text="{i18n>xrblRatesType}"/>
+									<RadioButton text="{i18n>xrblValueType}"/>
+								</RadioButtonGroup>
+							</f:fields>
+						</f:FormElement>
+						<!--Hedging Strategy-->
+						<f:FormElement label="{i18n>xfldHedgingStrat}">
+							<f:fields>
+								<TextArea value="{formDetails>/hedgingStrategy}" showExceededText="true" maxLength="2000" width="100%" editable="false"
+									valueState="{= ${formDetails>/hedgingStrategy}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"
+									placeholder="{i18n>xtxtHedgingStratPlaceholder}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Payment Term and Discount/Rebate-->
+						<f:FormElement label="{i18n>xfldPaymentTerm}">
+							<f:fields>
+								<Text text="{formDetails>/paymentTermDiscReb}"/>
+							</f:fields>
+						</f:FormElement>
+						<f:FormElement label="{i18n>xfldCpaType}">
+							<f:fields>
+								<RadioButtonGroup selectedIndex="{formDetails>/cpaType}" editable="false">
+									<RadioButton text="{i18n>xfldSapCpa}"/>
+									<RadioButton text="{i18n>xfldManCpa}"/>
+								</RadioButtonGroup>
+							</f:fields>
+						</f:FormElement>
+						<!--Price Includes Delivery-->
+						<f:FormElement label="{i18n>xfldIncDel}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/priceIncDelivery}" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Price Includes Offloading-->
+						<f:FormElement label="{i18n>xfldPriceIncOff}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/priceIncOffloading}" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Fix and Firm-->
+						<f:FormElement label="{i18n>xfldFixFirm}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/fixFirm}" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Fix and Firm Period-->
+						<f:FormElement label="{i18n>xfldValidityPeriodStart}">
+							<f:fields>
+								<Text text="{parts: ['formDetails>/fixFirmPeriodStart'], formatter: '.formatter.formatDateTime'}"/>
+							</f:fields>
+						</f:FormElement>
+						<f:FormElement label="{i18n>xfldValidityPeriodEnd}">
+							<f:fields>
+								<Text text="{parts: ['formDetails>/fixFirmPeriodEnd'], formatter: '.formatter.formatDateTime'}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Consequential Liability-->
+						<f:FormElement label="{i18n>xfldConsLia}">
+							<f:fields>
+								<Text text="{formDetails>/consLiability}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Other Risky Terms-->
+						<f:FormElement label="{i18n>xfldOtherRiskyTerms}">
+							<f:fields>
+								<TextArea value="{formDetails>/otherRiskyTerms}" showExceededText="true" maxLength="2000" width="100%" editable="false"
+									valueState="{= ${formDetails>/otherRiskyTerms}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"/>
+							</f:fields>
+						</f:FormElement>
+					</f:formElements>
+				</f:FormContainer>
+				
+				<!--CPA Rules if Applies-->
+				<f:FormContainer title="{i18n>xfldCPARules}">
+					<f:formElements>
+						
+						<!--Tender Response Base Month-->
+						<f:FormElement label="{i18n>xfldTendRespBase}">
+							<f:fields>
+								<TextArea value="{formDetails>/tenderRespBaseMon}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/tenderRespBaseMon}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Tender Response Cover Month-->
+						<f:FormElement label="{i18n>xfldTendRespCov}">
+							<f:fields>
+								<TextArea value="{formDetails>/tenderRespCovMon}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/tenderRespCovMon}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Frequency of Adjustment-->
+						<f:FormElement label="{i18n>xfldFrequencyAdj}">
+							<f:fields>
+								<Text text="{formDetails>/freqOfAdjustment}"/>
+							</f:fields>
+						</f:FormElement>
+						
+					</f:formElements>
+				</f:FormContainer>
+				
+				<!--Bank Guarantee or Performance Security-->
+				<f:FormContainer title="{i18n>xfldBankGuarantee}">
+					<f:formElements>
+						
+						<!--Advance Payment Bank Guarantee-->
+						<f:FormElement label="{i18n>xfldAdvPayBank}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/advPaymentBankGua}" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Performance Bank Guarantee-->
+						<f:FormElement label="{i18n>xfldPerfBankGau}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/perfBankGua}" editable="false" />
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Quality Bank Guarantee-->
+						<f:FormElement label="{i18n>xfldQualBankGua}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/qualityBankGua}" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Other Bank Guarantee-->
+						<f:FormElement label="{i18n>xfldOthBankGua}">
+							<f:fields>
+								<CheckBox selected="{formDetails>/otherBankGua}"  editable="false"/>
+							</f:fields>
+						</f:FormElement>
+
+					</f:formElements>
+				</f:FormContainer>
+				
+				<!--Lead Time Requirements-->
+				<f:FormContainer title="{i18n>xfldLeadTimeReq}">
+					<f:formElements>
+						
+						<!--Customer Requirement-->
+						<f:FormElement label="{i18n>xfldCusReq}">
+							<f:fields>
+								<TextArea value="{formDetails>/leadTimeCusReq}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/leadTimeCusReq}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Tender Response-->
+						<f:FormElement label="{i18n>xfldTendRes}">
+							<f:fields>
+								<TextArea value="{formDetails>/leadTimeTendResp}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/leadTimeTendResp}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" editable="false" />
+							</f:fields>
+						</f:FormElement>
+
+					</f:formElements>
+				</f:FormContainer>
+				
+				<!--Terms of Penalty-->
+				<f:FormContainer title="{i18n>xfldTermsofPen}">
+					<f:formElements>
+						
+						<!--Customer Requirement-->
+						<f:FormElement label="{i18n>xfldCusReq}">
+							<f:fields>
+								<TextArea value="{formDetails>/termsOfPenCusReq}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/termsOfPenCusReq}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" editable="false"/>
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Tender Response-->
+						<f:FormElement label="{i18n>xfldTendRes}">
+							<f:fields>
+								<TextArea value="{formDetails>/termsOfPenTendResp}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/termsOfPenTendResp}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"  editable="false"/>
+							</f:fields>
+						</f:FormElement>
+
+					</f:formElements>
+				</f:FormContainer>
+				
+				<!--Comments-->
+				<f:FormContainer title="{i18n>xfldComments}">
+					<f:formElements>
+						
+						<!--Comments from Sales Reps, etc-->
+						<f:FormElement label="{i18n>xfldCommentsFromSR}">
+							<f:fields>
+								<TextArea value="{formDetails>/commentsFromSR}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/commentsFromSR}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" editable="false" />
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Comments from Tender Admin - Profit at Time of Quotation-->
+						<f:FormElement label="{i18n>xfldComTAProfitQ}">
+							<f:fields>
+								<TextArea value="{formDetails>/commentsTAProfAtQ}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/commentsTAProfAtQ}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" editable="false" />
+							</f:fields>
+						</f:FormElement>
+						
+						<!--Comments from Tender Admin - Profit at Time of Signing Contract-->
+						<f:FormElement label="{i18n>xfldComTAProfitSC}">
+							<f:fields>
+								<TextArea value="{formDetails>/commentsTAProfAtSC}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/commentsTAProfAtSC}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" editable="false" />
+							</f:fields>
+						</f:FormElement>
+
+					</f:formElements>
+				</f:FormContainer>
+				
+				<!--Note-->
+				<f:FormContainer title="{i18n>ttlNotes}">
+					<f:formElements>
+						
+						<!--Note-->
+						<f:FormElement label="{i18n>xfldNewNote}" id="taNote">
+							<f:fields>
+								<TextArea value="{formDetails>/newNote}" growing="true" growingMaxLines="7" width="100%" rows="7" maxLength="2000"
+									placeholder="{i18n>xtxtNotePlaceholder}"/>
+							</f:fields>
+						</f:FormElement>
+						<!--Save Note Button-->
+						<f:FormElement label="" id="btnSave">
+							<f:fields>
+								<Button text="{i18n>xbutSaveNote}" press="onNewNoteSave"/>
+							</f:fields>
+						</f:FormElement>
+
+					</f:formElements>
+				</f:FormContainer>
+			</f:formContainers>
+		</f:Form>
+		<List noDataText="{i18n>xmsgNoNote}" id="nlNotes" items="{path: 'formDetails>/note'}" headerText="{i18n>ttlNotes}">
+			<NotificationListItem description="{formDetails>Note}" showCloseButton="false" unread="false" priority="None"
+				authorInitials="{formDetails>Initials}" datetime="{parts: ['formDetails>CreateDate'], formatter: '.formatter.formatDurationSince'}"
+				authorName="{formDetails>Creator}" hideShowMoreButton="true" truncate="false"></NotificationListItem>
+		</List>
+		<UploadCollection id="usAttach2" items="{path: 'oModelAttach>/items' }" multiple="false" sameFilenameAllowed="false" showSeparators="All"
+			noDataText="{i18n>xfldNoAttach}" mode="None" instantUpload="false" uploadButtonInvisible="true">
+			<toolbar>
+				<OverflowToolbar>
+					<Title text="{i18n>xhedAttach}"/>
+					<ToolbarSpacer/>
+					<UploadCollectionToolbarPlaceholder/>
+				</OverflowToolbar>
+			</toolbar>
+			<items>
+				<UploadCollectionItem fileName="{oModelAttach>fileName}" press="onPressAttach" visibleEdit="false" enableDelete="false"
+					visibleDelete="false"></UploadCollectionItem>
+			</items>
+		</UploadCollection>
+		<!--Request History-->
+		<tree:TreeTable id="tblWorkflowHistory" rows="{path:'historyTable>/history', parameters: {arrayNames:['logs']}}" selectionMode="MultiToggle"
+			enableSelectAll="false" ariaLabelledBy="title" rowsUpdated=".onTreeTableLoad" visible="{formDetails>/viewHistory}">
+			<tree:toolbar>
+				<OverflowToolbar style="Clear">
+					<Title id="title" text="{i18n>xfldWFLogs}"/>
+				</OverflowToolbar>
+			</tree:toolbar>
+			<tree:columns>
+				<!--Message column-->
+				<tree:Column width="10em" autoResizable="true">
+					<Label text="{i18n>xcolMess}"/>
+					<tree:template>
+						<Text text="{historyTable>Text}" wrapping="true"/>
+					</tree:template>
+				</tree:Column>
+				<!--Timestamp column-->
+				<tree:Column autoResizable="true">
+					<Label text="{i18n>xcolTS}"/>
+					<tree:template>
+						<Text text="{ parts: ['historyTable>Date', 'historyTable>Time'], formatter: '.formatter.formatLongDate'}" wrapping="true"/>
+					</tree:template>
+				</tree:Column>
+				<!--Actual agent-->
+				<tree:Column autoResizable="true">
+					<Label text="{i18n>xcolActAppr}"/>
+					<tree:template>
+						<Text text="{historyTable>ActAgent}" wrapping="true"/>
+					</tree:template>
+				</tree:Column>
+				<!--Forwarded By-->
+				<tree:Column autoResizable="true">
+					<Label text="{i18n>xcolForUser}"/>
+					<tree:template>
+						<Text text="{historyTable>ForAgent}" wrapping="true"/>
+					</tree:template>
+				</tree:Column>
+				<!--Status-->
+				<tree:Column autoResizable="true">
+					<Label text="{i18n>xcolStat}"/>
+					<tree:template>
+						<ObjectStatus state="{ parts: ['historyTable>Status'], formatter: '.formatter.formatStatusColour'}"
+							text="{ parts: ['historyTable>Status'], formatter: '.formatter.formatStatus'}"/>
+					</tree:template>
+				</tree:Column>
+			</tree:columns>
+		</tree:TreeTable>
+	</VBox>
+</core:FragmentDefinition>

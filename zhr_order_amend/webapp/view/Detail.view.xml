@@ -1,0 +1,52 @@
+<mvc:View 
+	controllerName="com.epiuse.zhrorderamend.controller.Detail" 
+	xmlns="sap.m" 
+	xmlns:semantic="sap.f.semantic"
+	xmlns:footerbar="sap.ushell.ui.footerbar" 
+	xmlns:mvc="sap.ui.core.mvc"
+	xmlns:f="sap.ui.layout.form">
+	
+	<semantic:SemanticPage 
+		id="detail"
+		busy="{detailView>/busy}" 
+		busyIndicatorDelay="{detailView>/delay}"
+		showFooter="true">
+		
+		<semantic:titleHeading>
+			<Title text="{Title}" level="H2"/>
+		</semantic:titleHeading>
+		
+		<semantic:headerContent>
+			<ObjectAttribute title="{i18n>xfldWi}" text="{ parts: ['Wi'], formatter: '.formatter.formatWi'}"/>
+			<ObjectAttribute title="{i18n>xfldCreateDate}" text="{ parts: ['CreateDate', 'CreateTime'], formatter: '.formatter.formatLongDate'}"/>
+		</semantic:headerContent>
+		
+		<semantic:content>
+			
+			<Panel id="formDetails" visible="false"></Panel>
+			
+		</semantic:content>
+		
+		<semantic:closeAction>
+			<semantic:CloseAction id="closeColumn" press=".onCloseDetailPress"/>
+		</semantic:closeAction>
+		
+		<semantic:fullScreenAction>
+			<semantic:FullScreenAction id="enterFullScreen"
+				visible="{= !${device>/system/phone} &amp;&amp; !${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/>
+		</semantic:fullScreenAction>
+		
+		<semantic:exitFullScreenAction>
+			<semantic:ExitFullScreenAction id="exitFullScreen"
+				visible="{= !${device>/system/phone} &amp;&amp; ${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/>
+		</semantic:exitFullScreenAction>
+		
+		<semantic:footerCustomActions>
+			<Button text="{i18n>xbutAck}" icon="sap-icon://activity-2" visible="{CanAck}" press=".onAcknowledge"/>
+			<Button text="{i18n>xbutResub}" icon="sap-icon://redo" visible="{CanResub}" press=".onResubmit"/>
+			<Button text="{i18n>xbutEdit}" icon="sap-icon://edit" visible="{CanEdit}" press=".onEdit"/>
+			<Button text="{i18n>xbutPDF}" icon="sap-icon://pdf-attachment" press=".onPrintPDF"/>
+		</semantic:footerCustomActions>
+		
+	</semantic:SemanticPage>
+</mvc:View>

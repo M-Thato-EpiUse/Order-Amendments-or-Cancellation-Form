@@ -1,0 +1,14 @@
+<mvc:View
+	controllerName="com.epiuse.zhrorderamend.controller.NotFound"
+	xmlns="sap.m"
+	xmlns:mvc="sap.ui.core.mvc">
+
+	<MessagePage
+		id="not-found"
+		title="{i18n>notFoundTitle}"
+		text="{i18n>notFoundText}"
+		icon="sap-icon://document"
+>
+	</MessagePage>
+
+</mvc:View>

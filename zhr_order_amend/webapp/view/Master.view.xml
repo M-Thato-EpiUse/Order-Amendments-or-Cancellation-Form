@@ -1,0 +1,70 @@
+<mvc:View 
+	controllerName="com.epiuse.zhrorderamend.controller.Master" 
+	xmlns="sap.m" 
+	xmlns:semantic="sap.f.semantic"
+	xmlns:mvc="sap.ui.core.mvc">
+	
+	<semantic:SemanticPage 
+		id="master" 
+		preserveHeaderStateOnScroll="true" 
+		toggleHeaderOnTitleClick="false"
+		showFooter="true">
+		
+		<semantic:titleHeading>
+			<Title id="masterPageTitle" text="{masterView>/title}" level="H2"/>
+		</semantic:titleHeading>
+		
+		<semantic:content>
+			
+			<!-- For client side filtering add this to the items attribute: parameters: {operationMode: 'Client'}}" -->
+			<List 
+				id="list" width="auto" class="sapFDynamicPageAlignContent"
+				items="{ 
+					path: '/FormSet', 
+					sorter: [{ path: 'CreateDate', descending: true },{ path: 'CreateTime', descending: true }], 
+					groupHeaderFactory: '.createGroupHeader',
+					filters : [{ path : 'Process', operator : 'EQ', value1 : 'CTAAF' }]
+				}"
+				busyIndicatorDelay="{masterView>/delay}" noDataText="{masterView>/noDataText}"
+				mode="{= ${device>/system/phone} ? 'None' : 'SingleSelectMaster'}" growing="true" growingScrollToLoad="true"
+				updateFinished=".onUpdateFinished" selectionChange=".onSelectionChange">
+				
+				<headerToolbar>
+					<OverflowToolbar>
+						<SearchField id="searchField" showRefreshButton="true" tooltip="{i18n>masterSearchTooltip}" search=".onSearch" width="auto">
+							<layoutData>
+								<OverflowToolbarLayoutData minWidth="150px" maxWidth="240px" shrinkable="true" priority="NeverOverflow"/>
+							</layoutData>
+						</SearchField>
+						<ToolbarSpacer/>
+						<Button id="sortButton" press=".onOpenViewSettings" icon="sap-icon://sort" type="Transparent"/>
+						<Button id="filterButton" press=".onOpenViewSettings" icon="sap-icon://filter" type="Transparent"/>
+					</OverflowToolbar>
+				</headerToolbar>
+				
+				<infoToolbar>
+					<OverflowToolbar id="vsdFilterBar" visible="false">
+						<Text id="vsdFilterLabel" />
+					</OverflowToolbar>
+				</infoToolbar>
+				
+				<items>
+					<ObjectListItem type="Navigation" press=".onSelectionChange" title="{Title}">
+						<firstStatus>
+							<ObjectStatus text="{ path: 'Status', formatter: '.formatter.formatStatus' }" state="{ path: 'Status', formatter: '.formatter.formatStatusState' }"/>
+						</firstStatus>
+						<ObjectAttribute title="{i18n>lblCreatedBy}" text="{InitName}"/>
+						<ObjectAttribute title="{i18n>xfldWi}" text="{ parts: ['Wi'], formatter: '.formatter.formatWi'}"/>
+						<ObjectAttribute title="{i18n>xfldCreateDate}" text="{ parts: ['CreateDate', 'CreateTime'], formatter: '.formatter.formatLongDate'}"/>
+					</ObjectListItem>
+				</items>
+				
+			</List>
+		</semantic:content>
+		
+		<semantic:footerCustomActions>
+			<Button text="{i18n>xbutCreate}" icon="sap-icon://add" press="onCreatePress" />
+		</semantic:footerCustomActions>
+		
+	</semantic:SemanticPage>
+</mvc:View>

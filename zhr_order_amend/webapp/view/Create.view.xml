@@ -1,0 +1,389 @@
+<mvc:View height="100%" xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" controllerName="com.epiuse.zhrorderamend.controller.Create"
+	xmlns="sap.m" xmlns:f="sap.ui.layout.form" xmlns:semantic="sap.f.semantic" xmlns:ui="sap.ca.ui" xmlns:l="sap.ui.layout"
+	xmlns:upload="sap.m.upload">
+	<semantic:SemanticPage headerPinnable="true" toggleHeaderOnTitleClick="true" preserveHeaderStateOnScroll="false"
+		titleAreaShrinkRatio="1:1.6:1.6" showFooter="true">
+		<!-- Title Heading-->
+		<semantic:titleHeading>
+			<Title text="{i18n>xhedCrHead}" id="ttlCr"/>
+		</semantic:titleHeading>
+		<semantic:content>
+			
+			<VBox class="sapUiSmallMargin">
+				<f:Form id="createFormGeneral" editable="true">
+					
+					<f:layout>
+						<f:ColumnLayout columnsM="1" columnsL="1" columnsXL="1"/>
+					</f:layout>
+					
+					<!--General Details-->
+					<f:formContainers>
+						<f:FormContainer title="{i18n>xfldGenDet}">
+							<f:formElements>
+								
+								<!--Customer Tender Number-->
+								<f:FormElement label="{i18n>xfldCustTendNo}">
+									<f:fields>
+										<Input value="{formDetails>/customerTenderNumber}"/>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Closing Date and Time-->
+								<f:FormElement label="{i18n>xfldClosingDateTime}">
+									<f:fields>
+										<DateTimePicker
+											value="{
+												path:'formDetails>/closingDateTime',
+												type:'sap.ui.model.type.DateTime',
+												formatOptions: {
+													style: 'medium',
+													strictParsing: true
+												}
+											}"
+											class="sapUiSmallMarginBottom">
+										</DateTimePicker>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Responsible Person-->
+								<f:FormElement label="{i18n>xfldResponsiblePerson}">
+									<f:fields>
+										<Input value="{formDetails>/responsiblePerson}"/>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Validity Period-->
+								<f:FormElement label="{i18n>xfldValidityPeriod}">
+									<f:fields>
+										<DateRangeSelection
+											value= "{
+												'type': 'sap.ui.model.type.DateInterval',
+												'formatOptions': {
+													'pattern': 'yyyy/MM/dd'
+												},
+												'parts': [
+													{
+														'type': 'sap.ui.model.type.Date',
+														'path': 'formDetails>/validityPeriodStart'
+													},
+													{
+														'type': 'sap.ui.model.type.Date',
+														'path': 'formDetails>/validityPeriodEnd'
+													}
+												]
+											}"/>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Customer Name-->
+								<f:FormElement label="{i18n>xfldCustomerName}">
+									<f:fields>
+										<Input value="{formDetails>/customerName}"/>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Contract Name and Total Value-->
+								<f:FormElement label="{i18n>xfldContractName}">
+									<f:fields>
+										<Input value="{formDetails>/contractNameValue}"/>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--MBD Clause-->
+								<f:FormElement label="{i18n>xcklMBDClause}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/mbdClause}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Lawyer Comment Required-->
+								<f:FormElement label="{i18n>xfldLawyerCom}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/lawyerComReq}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Contract Type-->
+								<f:FormElement label="{i18n>xfldContractType}">
+									<f:fields>
+										<RadioButtonGroup selectedIndex="{formDetails>/contractType}">
+											<RadioButton text="{i18n>xrblRatesType}"/>
+											<RadioButton text="{i18n>xrblValueType}" />
+										</RadioButtonGroup>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Hedging Strategy-->
+								<f:FormElement label="{i18n>xfldHedgingStrat}">
+									<f:fields>
+										<TextArea value="{formDetails>/hedgingStrategy}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/hedgingStrategy}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" placeholder="{i18n>xtxtHedgingStratPlaceholder}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Payment Term and Discount/Rebate-->
+								<f:FormElement label="{i18n>xfldPaymentTerm}">
+									<f:fields>
+										<Input value="{formDetails>/paymentTermDiscReb}"/>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--SAP CPA-->
+								<!--<f:FormElement label="{i18n>xfldSapCpa}">-->
+								<!--	<f:fields>-->
+								<!--		<CheckBox selected="{formDetails>/sapCPA}" />-->
+								<!--	</f:fields>-->
+								<!--</f:FormElement>-->
+								
+								<!--Manual CPA-->
+								<!--<f:FormElement label="{i18n>xfldManCpa}">-->
+								<!--	<f:fields>-->
+								<!--		<CheckBox selected="{formDetails>/manualCPA}" />-->
+								<!--	</f:fields>-->
+								<!--</f:FormElement>-->
+								
+								<!--CPA Type-->
+								<f:FormElement label="{i18n>xfldCpaType}">
+									<f:fields>
+										<RadioButtonGroup selectedIndex="{formDetails>/cpaType}">
+											<RadioButton text="{i18n>xfldSapCpa}"/>
+											<RadioButton text="{i18n>xfldManCpa}" />
+										</RadioButtonGroup>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Price Includes Delivery-->
+								<f:FormElement label="{i18n>xfldIncDel}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/priceIncDelivery}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Price Includes Offloading-->
+								<f:FormElement label="{i18n>xfldPriceIncOff}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/priceIncOffloading}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Fix and Firm-->
+								<f:FormElement label="{i18n>xfldFixFirm}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/fixFirm}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Fix and Firm Period-->
+								<f:FormElement label="{i18n>xfldFixFirmPer}">
+									<f:fields>
+										<DateRangeSelection
+											value= "{
+												'type': 'sap.ui.model.type.DateInterval',
+												'formatOptions': {
+													'pattern': 'yyyy/MM/dd'
+												},
+												'parts': [
+													{
+														'type': 'sap.ui.model.type.Date',
+														'path': 'formDetails>/fixFirmPeriodStart'
+													},
+													{
+														'type': 'sap.ui.model.type.Date',
+														'path': 'formDetails>/fixFirmPeriodEnd'
+													}
+												]
+											}"/>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Consequential Liability-->
+								<f:FormElement label="{i18n>xfldConsLia}">
+									<f:fields>
+										<Input value="{formDetails>/consLiability}"/>
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Other Risky Terms-->
+								<f:FormElement label="{i18n>xfldOtherRiskyTerms}">
+									<f:fields>
+										<TextArea value="{formDetails>/otherRiskyTerms}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/otherRiskyTerms}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"  />
+									</f:fields>
+								</f:FormElement>
+								
+							</f:formElements>
+						</f:FormContainer>
+						
+						<!--CPA Rules if Applies-->
+						<f:FormContainer title="{i18n>xfldCPARules}">
+							<f:formElements>
+								
+								<!--Tender Response Base Month-->
+								<f:FormElement label="{i18n>xfldTendRespBase}">
+									<f:fields>
+										<TextArea value="{formDetails>/tenderRespBaseMon}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/tenderRespBaseMon}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Tender Response Cover Month-->
+								<f:FormElement label="{i18n>xfldTendRespCov}">
+									<f:fields>
+										<TextArea value="{formDetails>/tenderRespCovMon}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/tenderRespCovMon}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Frequency of Adjustment-->
+								<f:FormElement label="{i18n>xfldFrequencyAdj}">
+									<f:fields>
+										<Input value="{formDetails>/freqOfAdjustment}"/>
+									</f:fields>
+								</f:FormElement>
+								
+							</f:formElements>
+						</f:FormContainer>
+						
+						<!--Bank Guarantee or Performance Security-->
+						<f:FormContainer title="{i18n>xfldBankGuarantee}">
+							<f:formElements>
+								
+								<!--Advance Payment Bank Guarantee-->
+								<f:FormElement label="{i18n>xfldAdvPayBank}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/advPaymentBankGua}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Performance Bank Guarantee-->
+								<f:FormElement label="{i18n>xfldPerfBankGau}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/perfBankGua}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Quality Bank Guarantee-->
+								<f:FormElement label="{i18n>xfldQualBankGua}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/qualityBankGua}" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Other Bank Guarantee-->
+								<f:FormElement label="{i18n>xfldOthBankGua}">
+									<f:fields>
+										<CheckBox selected="{formDetails>/otherBankGua}"  />
+									</f:fields>
+								</f:FormElement>
+
+							</f:formElements>
+						</f:FormContainer>
+						
+						<!--Lead Time Requirements-->
+						<f:FormContainer title="{i18n>xfldLeadTimeReq}">
+							<f:formElements>
+								
+								<!--Customer Requirement-->
+								<f:FormElement label="{i18n>xfldCusReq}">
+									<f:fields>
+										<TextArea value="{formDetails>/leadTimeCusReq}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/leadTimeCusReq}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Tender Response-->
+								<f:FormElement label="{i18n>xfldTendRes}">
+									<f:fields>
+										<TextArea value="{formDetails>/leadTimeTendResp}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/leadTimeTendResp}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"  />
+									</f:fields>
+								</f:FormElement>
+
+							</f:formElements>
+						</f:FormContainer>
+						
+						<!--Terms of Penalty-->
+						<f:FormContainer title="{i18n>xfldTermsofPen}">
+							<f:formElements>
+								
+								<!--Customer Requirement-->
+								<f:FormElement label="{i18n>xfldCusReq}">
+									<f:fields>
+										<TextArea value="{formDetails>/termsOfPenCusReq}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/termsOfPenCusReq}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false" />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Tender Response-->
+								<f:FormElement label="{i18n>xfldTendRes}">
+									<f:fields>
+										<TextArea value="{formDetails>/termsOfPenTendResp}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/termsOfPenTendResp}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"  />
+									</f:fields>
+								</f:FormElement>
+
+							</f:formElements>
+						</f:FormContainer>
+						
+						<!--Comments-->
+						<f:FormContainer title="{i18n>xfldComments}">
+							<f:formElements>
+								
+								<!--Comments from Sales Reps, etc-->
+								<f:FormElement label="{i18n>xfldCommentsFromSR}">
+									<f:fields>
+										<TextArea value="{formDetails>/commentsFromSR}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/commentsFromSR}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"  />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Comments from Tender Admin - Profit at Time of Quotation-->
+								<f:FormElement label="{i18n>xfldComTAProfitQ}">
+									<f:fields>
+										<TextArea value="{formDetails>/commentsTAProfAtQ}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/commentsTAProfAtQ}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"  />
+									</f:fields>
+								</f:FormElement>
+								
+								<!--Comments from Tender Admin - Profit at Time of Signing Contract-->
+								<f:FormElement label="{i18n>xfldComTAProfitSC}">
+									<f:fields>
+										<TextArea value="{formDetails>/commentsTAProfAtSC}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/commentsTAProfAtSC}.length > 40 ? 'Warning' : 'None' }" valueLiveUpdate="false"  />
+									</f:fields>
+								</f:FormElement>
+
+							</f:formElements>
+						</f:FormContainer>
+						
+						<!--Note-->
+						<f:FormContainer title="{i18n>ttlNotes}">
+							<f:formElements>
+								
+								<!--Comments from Sales Reps, etc-->
+								<f:FormElement label="{i18n>xfldNote}">
+									<f:fields>
+										<TextArea value="{formDetails>/note}" showExceededText="true" maxLength="2000" width="100%" valueState="{= ${formDetails>/note}.length > 2000 ? 'Warning' : 'None' }" valueLiveUpdate="false"  />
+									</f:fields>
+								</f:FormElement>
+
+							</f:formElements>
+						</f:FormContainer>
+						
+					</f:formContainers>
+				</f:Form>
+				
+				<!--Attachment Upload-->
+				<upload:UploadSet id="usAttach" showIcons="true" uploadEnabled="true" terminationEnabled="true"
+					uploadUrl="/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet" instantUpload="true" items="{path: 'oModelAttach>/items' }"
+					beforeUploadStarts="onBeforeUploadStarts" uploadCompleted="onUploadComplete" maxFileSize="5">
+					<upload:items>
+						<upload:UploadSetItem fileName="{oModelAttach>fileName}" visibleRemove="true" removePressed="onRemovePressed">
+							<upload:attributes>
+								<ObjectAttribute title="File Description" text="{oModelAttach>fileName}"/>
+							</upload:attributes>
+						</upload:UploadSetItem>
+					</upload:items>
+				</upload:UploadSet>
+			</VBox>
+		</semantic:content>
+		<semantic:messagesIndicator>
+			<semantic:MessagesIndicator press="onMessagesButtonPress" visible="true" id="btnMsgs"/>
+		</semantic:messagesIndicator>
+		<semantic:closeAction>
+			<semantic:CloseAction press=".onBackNav"/>
+		</semantic:closeAction>
+		<semantic:footerCustomActions>
+			<Button text="{i18n>xbutSubmit}" press="onFormSubmit"/>
+		</semantic:footerCustomActions>
+	</semantic:SemanticPage>
+</mvc:View>

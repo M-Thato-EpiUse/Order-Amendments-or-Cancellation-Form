@@ -1,0 +1,23 @@
+<core:FragmentDefinition
+		xmlns="sap.m"
+		xmlns:core="sap.ui.core">
+	<ViewSettingsDialog 
+			id="view-settings-dialog-frag"
+			confirm="handleConfirmViewSettings"
+			sortDescending="true">
+		<sortItems>
+			<ViewSettingsItem text="{i18n>xfldCreateDate}" key="CreateDate" selected="true"/>
+			<ViewSettingsItem text="{i18n>xfldWi}" key="Wi"/>
+		</sortItems>
+		<filterItems>
+			<ViewSettingsFilterItem text="{i18n>xfldStat}" key="1">
+				<items>
+					<ViewSettingsItem text="{i18n>xfldStatPending}" key="READY" />
+					<ViewSettingsItem text="{i18n>xfldStatAppr}" key="APPROVED" />
+					<ViewSettingsItem text="{i18n>xfldStatRej}" key="REJECTED" />
+					<ViewSettingsItem text="{i18n>xfldStatReqAtt}" key="ATTENTION" />
+				</items>
+			</ViewSettingsFilterItem>
+		</filterItems>
+	</ViewSettingsDialog>
+</core:FragmentDefinition>

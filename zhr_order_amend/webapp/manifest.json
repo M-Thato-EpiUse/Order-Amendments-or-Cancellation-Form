@@ -57,7 +57,7 @@
     }
   },
   "sap.ui5": {
-    "flexEnabled": true,
+    "flexEnabled": false,
     "dependencies": {
       "minUI5Version": "1.108.31",
       "libs": {
@@ -99,24 +99,84 @@
         "controlId": "app",
         "clearControlAggregation": false
       },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       "routes": [
         {
-          "name": "RouteCreate-Change-Form",
-          "pattern": ":?query:",
+          "pattern": "",
+          "name": "master",
+          "target": ["master"]
+        },
+
+        {
+          "pattern":"Order-Items",
+          "name": "object",
           "target": [
-            "TargetCreate-Change-Form"
+            "list",
+            "object"
           ]
-        }
+        },
+
+        {
+					"name": "create",
+					"pattern": "create/{type}",
+					"target": [
+						"create"
+					]
+				}
       ],
+
       "targets": {
-        "TargetCreate-Change-Form": {
-          "viewType": "XML",
-          "transition": "slide",
-          "clearControlAggregation": false,
-          "viewId": "Create-Change-Form",
-          "viewName": "Create-Change-Form"
+        "master": {
+          "viewName": "Master",
+          "viewLevel": 1,
+          "viewId": "master"
+        },
+
+        "object": {
+          "viewId": "detail",
+          "viewName": "Detail",
+          "viewLevel": 1,
+          "controlAggregation":"midColumnPages"
+        },
+
+        "detailObjectNotFound": {
+          "viewName": "DetailObjectNotFound",
+          "viewId": "detailObjectNotFound",
+          "controlAggregation": "midColumnPages"
+        },
+
+        "notFound": {
+          "viewName": "NotFound",
+          "viewId": "notFound"
         }
       }
+
+
+
+
+
+
+
+
     },
     "rootView": {
       "viewName": "com.epiuse.zhrorderamend.view.App",
