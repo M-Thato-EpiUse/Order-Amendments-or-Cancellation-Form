@@ -21,6 +21,8 @@ sap.ui.define([
 		/* =========================================================== */
 
 		onInit: function () {
+			// this.viewData();
+
 			// Control state model
 			var oList = this.byId("list"),
 				oViewModel = this._createViewModel(),
@@ -58,6 +60,21 @@ sap.ui.define([
 			
 			// Save process filter for reference
 			this._oProcessFilter = new sap.ui.model.Filter("Process", sap.ui.model.FilterOperator.EQ, "CTAAF");
+		},
+
+		viewData: function () {
+			const oModel = this.getOwnerComponent().getModel();
+
+			oModel.read("/SalesOrderItemSet", {
+				success: (oData) => {
+					console.log("data: ", oData);
+					
+				},
+				error: (oError) => {
+					console.error("error: ", oError);
+
+				}
+			});
 		},
 
 		/* =========================================================== */

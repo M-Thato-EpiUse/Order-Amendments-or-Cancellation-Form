@@ -95,30 +95,10 @@
         "viewType": "XML",
         "async": true,
         "viewPath": "com.epiuse.zhrorderamend.view",
-        "controlAggregation": "pages",
-        "controlId": "app",
+        "controlAggregation": "beginColumnPages",
+        "controlId": "layout",
         "clearControlAggregation": false
       },
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
       "routes": [
         {
           "pattern": "",
@@ -127,10 +107,10 @@
         },
 
         {
-          "pattern":"Order-Items",
+          "pattern":"FormSet/{objectId}",
           "name": "object",
           "target": [
-            "list",
+            "master",
             "object"
           ]
         },
@@ -141,6 +121,20 @@
 					"target": [
 						"create"
 					]
+				},
+
+        {
+					"name": "edit",
+					"pattern": "edit/{wi}",
+					"target": [
+						"create"
+					]
+				},
+
+				{
+					"pattern": "detail/{scenarioid}/{wfInstanceId}/{taskPath}",
+					"name": "wfobject",
+					"target": "object"
 				}
       ],
 
@@ -158,6 +152,12 @@
           "controlAggregation":"midColumnPages"
         },
 
+        "create": {
+					"viewLevel": 1,
+					"viewId": "create",
+					"viewName": "Create"
+				},
+
         "detailObjectNotFound": {
           "viewName": "DetailObjectNotFound",
           "viewId": "detailObjectNotFound",
@@ -169,14 +169,6 @@
           "viewId": "notFound"
         }
       }
-
-
-
-
-
-
-
-
     },
     "rootView": {
       "viewName": "com.epiuse.zhrorderamend.view.App",

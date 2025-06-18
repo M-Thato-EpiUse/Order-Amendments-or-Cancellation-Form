@@ -4,12 +4,12 @@
     xmlns:f="sap.f"
     xmlns="sap.m">
     <App id="app"
-    busy="{appView>/busy}"
-		busyIndicatorDelay="{appView>/delay}">
-		<f:FlexibleColumnLayout
-			id="layout"
-			layout="{appView>/layout}"
-			backgroundDesign="Translucent">
-		</f:FlexibleColumnLayout>
+      busy="{appView>/busy}"
+      busyIndicatorDelay="{appView>/delay}">
+      <f:FlexibleColumnLayout
+        id="layout"
+        layout="{appView>/layout}"
+        backgroundDesign="Translucent">
+      </f:FlexibleColumnLayout>
     </App>
 </mvc:View>

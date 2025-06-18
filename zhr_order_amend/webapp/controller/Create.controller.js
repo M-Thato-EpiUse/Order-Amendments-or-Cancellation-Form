@@ -146,10 +146,12 @@ sap.ui.define([
 				}),
 				beginButton: new sap.m.Button({
 					text: oBundle.getText("confirmationButtonYes"),
-					press: function () {
+					press: () => {
 						dialog.close();
 						// Perform the navigation back
-						window.history.back();
+						// window.history.back();
+
+						this.oRouter.navTo("master");
 					}
 				}),
 				endButton: new sap.m.Button({
