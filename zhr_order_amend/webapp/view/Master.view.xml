@@ -23,7 +23,7 @@
 					path: '/FormSet', 
 					sorter: [{ path: 'CreateDate', descending: true },{ path: 'CreateTime', descending: true }], 
 					groupHeaderFactory: '.createGroupHeader',
-					filters : [{ path : 'Process', operator : 'EQ', value1 : 'CTAAF' }]
+					filters : [{ path : 'Process', operator : 'EQ', value1 : 'ORDAMD' }]
 				}"
 				busyIndicatorDelay="{masterView>/delay}" noDataText="{masterView>/noDataText}"
 				mode="{= ${device>/system/phone} ? 'None' : 'SingleSelectMaster'}" growing="true" growingScrollToLoad="true"

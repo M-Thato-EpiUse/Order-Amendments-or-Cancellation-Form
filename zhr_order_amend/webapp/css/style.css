@@ -1,1 +1,10 @@
-/* Enter your custom styles here */
+/* Busy Indicator */
+.sapUiLocalBusyIndicatorShowContainer>div.sapUiLocalBusyIndicatorAnimation {
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+.sapFDynamicPageTitleMainHeadingInner, .sapFDynamicPageTitleMain>.sapFDynamicPageTitleMainInner .sapFDynamicPageTitleMainHeading .sapFDynamicPageTitleMainHeadingSnappedExpandContent,
+.sapFDynamicPageTitleMain>.sapFDynamicPageTitleMainInner .sapFDynamicPageTitleMainHeading {
+    width: 100% !important;
+}

@@ -21,8 +21,6 @@ sap.ui.define([
 		/* =========================================================== */
 
 		onInit: function () {
-			// this.viewData();
-
 			// Control state model
 			var oList = this.byId("list"),
 				oViewModel = this._createViewModel(),
@@ -59,23 +57,8 @@ sap.ui.define([
 			this.getRouter().attachBypassed(this.onBypassed, this);
 			
 			// Save process filter for reference
-			this._oProcessFilter = new sap.ui.model.Filter("Process", sap.ui.model.FilterOperator.EQ, "CTAAF");
-		},
-
-		viewData: function () {
-			const oModel = this.getOwnerComponent().getModel();
-
-			oModel.read("/SalesOrderItemSet", {
-				success: (oData) => {
-					console.log("data: ", oData);
-					
-				},
-				error: (oError) => {
-					console.error("error: ", oError);
-
-				}
-			});
-		},
+			this._oProcessFilter = new sap.ui.model.Filter("Process", sap.ui.model.FilterOperator.EQ, "ORDAMD");
+		},		
 
 		/* =========================================================== */
 		/* event handlers                                              */
@@ -187,7 +170,7 @@ sap.ui.define([
 				// Get the details of the selected item to extract the payload
 				var oRequest = oEvent.getSource().getSelectedItem().getBindingContext().getObject(),
 					oJsonReq,
-					aAcknowledgements;
+					aAcknowledgements;					
 
 				// If there is a json payload parse it
 				if (oRequest.Payload) {
@@ -383,5 +366,4 @@ sap.ui.define([
 		}
 
 	});
-
 });

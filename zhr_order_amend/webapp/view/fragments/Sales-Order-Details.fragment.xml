@@ -1,0 +1,34 @@
+<core:FragmentDefinition xmlns="sap.m" xmlns:core="sap.ui.core">
+	<Dialog title="Sales Order Details">
+		<VBox>
+			<Text text="{orderDetails>/header/SalesDocument}" />
+			<Text text="{orderDetails>/header/CreatedBy}" />
+			<Table items="{orderDetails>/items}" mode="MultiSelect" width="1080px">
+				<columns>
+					<Column><Text text="Line Item No" /></Column>
+					<Column><Text text="Unique Code" /></Column>
+					<Column><Text text="Quantity" /></Column>
+					<Column><Text text="Price" /></Column>
+					<Column><Text text="TotalAmount" /></Column>
+				</columns>
+				<items>
+					<ColumnListItem>
+						<cells>
+							<Text text="{orderDetails>Item}" />
+							<Text text="{orderDetails>Material}" />
+							<Text text="{orderDetails>Quantity}" />
+							<Text text="{orderDetails>NetPrice}" />
+							<Text text="{orderDetails>NetValue}" />
+						</cells>
+					</ColumnListItem>
+				</items>
+			</Table>
+		</VBox>
+        <beginButton>
+			<Button text="Import" press=".onSalesOrderImport" />
+		</beginButton>
+		<endButton>
+			<Button text="Back" press=".onSalesOrderBack" />
+		</endButton>
+	</Dialog>
+</core:FragmentDefinition>

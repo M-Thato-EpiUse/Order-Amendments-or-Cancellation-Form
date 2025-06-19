@@ -119,7 +119,7 @@ sap.ui.define([
 		},
 
 		_setFormModel: function (oRequest) {
-			var oJsonReq,
+			let oJsonReq,
 				aAcknowledgements;
 
 			// If there is a json payload parse it
@@ -136,10 +136,9 @@ sap.ui.define([
 			oJsonReq.newNote = "";
 
 			// Set the payload details
-			var oMotGenReq = new JSONModel(oJsonReq);
+			const oMotGenReq = new JSONModel(oJsonReq);
 			this.getOwnerComponent().setModel(oMotGenReq, "formDetails");
-		}
+		},
 
 	});
-
 });
