@@ -335,6 +335,19 @@ sap.ui.define([
 			this.getRouter().navTo("object", {
 				objectId: oItem.getBindingContext().getProperty("Wi")
 			}, bReplace);
+
+			setTimeout(() => {
+				const oFormDetailView = this.getOwnerComponent().byId("Form-Detail");
+
+				if (oFormDetailView) {
+					setTimeout(() => {
+						const oFormDetailController = oFormDetailView.getController();
+
+						console.log("view: ", oFormDetailView);
+						console.log("controller: ", oFormDetailController);
+					}, 1000);
+				}
+			}, 2000);
 		},
 
 		_updateListItemCount: function (iTotalItems) {

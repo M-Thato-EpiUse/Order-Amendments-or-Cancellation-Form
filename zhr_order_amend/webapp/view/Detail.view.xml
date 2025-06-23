@@ -23,22 +23,22 @@
 		
 		<semantic:content>
 			
-			<Panel id="formDetails" visible="false"></Panel>
+			<!-- <Panel id="formDetails" visible="false"></Panel> -->
 			
 		</semantic:content>
 		
 		<semantic:closeAction>
-			<semantic:CloseAction id="closeColumn" press=".onCloseDetailPress"/>
+			<!-- <semantic:CloseAction id="closeColumn" press=".onCloseDetailPress"/> -->
 		</semantic:closeAction>
 		
 		<semantic:fullScreenAction>
-			<semantic:FullScreenAction id="enterFullScreen"
-				visible="{= !${device>/system/phone} &amp;&amp; !${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/>
+			<!-- <semantic:FullScreenAction id="enterFullScreen" -->
+				<!-- visible="{= !${device>/system/phone} &amp;&amp; !${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/> -->
 		</semantic:fullScreenAction>
 		
 		<semantic:exitFullScreenAction>
-			<semantic:ExitFullScreenAction id="exitFullScreen"
-				visible="{= !${device>/system/phone} &amp;&amp; ${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/>
+			<!-- <semantic:ExitFullScreenAction id="exitFullScreen" -->
+				<!-- visible="{= !${device>/system/phone} &amp;&amp; ${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/> -->
 		</semantic:exitFullScreenAction>
 		
 		<semantic:footerCustomActions>

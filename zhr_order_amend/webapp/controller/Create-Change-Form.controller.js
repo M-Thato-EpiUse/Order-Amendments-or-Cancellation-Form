@@ -28,7 +28,52 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
         },
 
 		/* =========================================================== */
-		/* event handlers                                              */
+		/* Global Helper Functions                                     */
+		/* =========================================================== */
+
+		// #region Format Functions
+		_unformatCurrency: function (formattedValue) {
+			if (!formattedValue) return "";
+		
+			// Remove "R", spaces, and parse to float
+			const raw = formattedValue
+				.replace("R", "")
+				.replace(/\s/g, "")
+				.trim();
+		
+			const number = parseFloat(raw);
+			return isNaN(number) ? "" : number.toString();
+		},		
+
+		_formatDate: function (value) {
+			if (!value) return "";
+			
+			const oDate = new Date(value);
+			if (isNaN(oDate.getTime())) return "";
+			
+			const day = oDate.getDate().toString().padStart(2, '0');
+			const month = (oDate.getMonth() + 1).toString().padStart(2, '0');
+			const year = oDate.getFullYear();
+			
+			return day + '/' + month + '/' + year;
+		},
+
+		_clearFormValues: function () {
+			this._clearTableValues();
+		},
+
+		_clearTableValues: function () {
+			// Change To Table
+			this.byId("inUniqueCode").setValue("");
+			this.byId("inQuantity").setValue("");
+			this.byId("inNetPrice").setValue("");
+			this.byId("inNetValue").setValue("");
+			this.byId("dtpNewRequestedDate").setValue("");
+		},
+		// #endregion
+
+		/* =========================================================== */
+		/* Initialization                                              */
 		/* =========================================================== */
 
         // #region Initialisation
@@ -55,7 +100,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 
         // #region _onObjectMatched
         _onObjectMatched: function (oEvent) {
-
 			const oUserInfoService = sap.ushell.Container.getService("UserInfo");
 			const oUser = oUserInfoService.getUser();
 				
@@ -127,33 +171,25 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
         // #endregion
 
 		/* =========================================================== */
-		/* event handlers                                              */
+		/* Validation                                                  */
 		/* =========================================================== */
 
         // #region _performValidation
-        // Validation - Handler for all validations against request
         _performValidation: function () {
-
 			// Clear existing messages
 			this.oMessageManager.removeAllMessages();
-
 			const iErrors = 0;
 
 			if (iErrors > 0) {
-
-				// Display the message popup
 				this.onMessagesButtonPress();
-
 				return false;
 			} else {
 				return true;
 			}
 		},
-        // #endregion
 
-        onMessagesButtonPress: function (oEvent) {
-
-			var oMessagesButton = this.getView().byId("btnMsgs");
+        onMessagesButtonPress: function () {
+			const oMessagesButton = this.getView().byId("btnMsgs");
 
 			if (!this._messagePopover) {
 				this._messagePopover = new MessagePopover({
@@ -170,12 +206,13 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			}
 			this._messagePopover.toggle(oMessagesButton);
 		},
+		// #endregion
 
 		/* =========================================================== */
-		/* event handlers                                              */
+		/* Control Actions                                             */
 		/* =========================================================== */
 
-        // #region onNavBack
+		// #region onNavBack
 		onNavBack: function () {
 			var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
 
@@ -205,11 +242,11 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 
 			dialog.open();
 		},
-        // #endregion
-        
-        // #region handleLiveChange
-        handleLiveChange: function (oEvent) {
-            const ValueState = coreLibrary.ValueState;
+		// #endregion
+
+		// #region handleLiveChange
+		handleLiveChange: function (oEvent) {
+			const ValueState = coreLibrary.ValueState;
 			const oTextArea = oEvent.getSource(),
 				iValueLength = oTextArea.getValue().length,
 				iMaxLength = oTextArea.getMaxLength(),
@@ -217,20 +254,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 
 			oTextArea.setValueState(sState);
 		},
-        // #endregion
-
-        // #region onPlantConfirmationChange
-        onPlantConfirmationChange: function (oEvent) {
-            const sSelectedKey = oEvent.getSource().getSelectedKey();
-            const oUploadHBox = this.byId("hbxUploadDocument");
-
-            if (sSelectedKey === "Yes") {
-                oUploadHBox.setVisible(true);
-            } else {
-                oUploadHBox.setVisible(false);
-            }
-        },
-        // #endregion
+		// #endregion
 
         // #region onOrderProgressSelect
         onOrderProgressSelect: function (oEvent) {
@@ -252,6 +276,10 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
             }
         } ,
         // #endregion
+
+		/* =========================================================== */
+		/* Change To/From Tables                                       */
+		/* =========================================================== */
 
         // #region onAddItem
         onAddItem: function () {
@@ -286,177 +314,159 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
         // #endregion
 
         // #region onDeleteItem
-        onDeleteItem: function (oEvent) {
-            const oModel = this.getView().getModel();
-
-            // Get the clicked row context and extract the lineNumber
-            const oContext = oEvent.getSource().getBindingContext();
-            const iLineNumber = oContext.getProperty("lineNumber");
-
-            // Helper to filter out the matching row by lineNumber
-            function removeByLineNumber(aItems) {
-                return aItems.filter(function (item) {
-                    return item.lineNumber !== iLineNumber;
-                }).map(function (item, index) {
-                    item.lineNumber = index + 1; // Re-number after deletion
-                    return item;
-                });
-            }
-
-            // Remove from both arrays
-            const aChangeFrom = oModel.getProperty("/changeFromItems");
-            const aChangeTo = oModel.getProperty("/changeToItems");
-
-            const aUpdatedChangeFrom = removeByLineNumber(aChangeFrom);
-            const aUpdatedChangeTo = removeByLineNumber(aChangeTo);
-
-            oModel.setProperty("/changeFromItems", aUpdatedChangeFrom);
-            oModel.setProperty("/changeToItems", aUpdatedChangeTo);
-
-            // Hide the total HBox if there are no rows left
-            const oHBoxChangeFrom = this.byId("hbxChangeFrom");
-            const oHBoxChangeTo = this.byId("hbxChangeTo");
-            if (oHBoxChangeFrom && oHBoxChangeTo && aUpdatedChangeFrom.length === 0) {
-                oHBoxChangeFrom.setVisible(false);
-                oHBoxChangeTo.setVisible(false);
-            }
-        } ,   
-        // #endregion
-
-        // #region onBeforeUploadStarts
-        onBeforeUploadStarts: function (oEvent) {
-			const oHeaderItem = oEvent.getParameter("item");
-			const slugVal = oHeaderItem.getFileName() + "," + this.uuid + ",ZCA_ATTACH";
-
-			oHeaderItem.removeAllStatuses();
-
-			oHeaderItem.addHeaderField(new sap.ui.core.Item({
-				key: "slug",
-				text: slugVal
-			}));
-
-			oHeaderItem.addHeaderField(new sap.ui.core.Item({
-				key: "x-csrf-token",
-				text: this.getOwnerComponent().getModel().getSecurityToken()
-			}));
-		},
-        // #endregion
-
-        // #region onUploadComplete
-        onUploadComplete: function (oEvent) {
-			const oStatus = oEvent.getParameter("status"),
-				oItem = oEvent.getParameter("item"),
-				oUploadSet = this.getView().byId("usAttach");
-
-			if (oStatus && oStatus !== 201) {
-				oItem.setUploadState("Error");
-				oItem.removeAllStatuses();
-			} else {
-				oUploadSet.removeIncompleteItem(oItem);
-				this._setAttachmentModel();
+        onDeleteItem: function(oEvent) {
+			// Get the button that was pressed
+			const oButton = oEvent.getSource();
+			
+			// Get the list item (row) that contains this button
+			const oListItem = oButton.getParent();
+			
+			// Get the binding context to identify which item to delete
+			const oBindingContext = oListItem.getBindingContext("selectedOrderItems");
+			
+			if (!oBindingContext) {
+				sap.m.MessageToast.show("Unable to identify the item to delete");
+				return;
 			}
-		},
-        // #endregion
-
-        // #region onRemovePressed
-        onRemovePressed: function (oEvent) {
-			// Prevent the default confirmation popup
-			oEvent.preventDefault();
-
-			// Get the item details
-			const oItem = oEvent.getSource(),
-				sGuid = oItem.getBinding("fileName").getContext().getObject().Guid,
-				that = this;
-
-			// Build the path to the AttachmentSet entity
-			const sPath = "/AttachmentSet('" + sGuid + "')";
-
-			// Remove the attachment from the backend
-			this.getOwnerComponent().getModel().remove(sPath, {
-				success: function () {
-					// Refresh the list
-					that._setAttachmentModel();
-					sap.m.MessageToast.show("Attachment removed from request");
-				},
-				error: function () {
-					sap.m.MessageToast.show("Error occured reading data");
+			
+			// Get the path of the item (e.g., "/selectedItems/2")
+			const sPath = oBindingContext.getPath();
+			
+			// Extract the index from the path
+			const aPathParts = sPath.split("/");
+			const iIndex = parseInt(aPathParts[aPathParts.length - 1]);
+			
+			// Get the model and current data
+			const oModel = this.getView().getModel("selectedOrderItems");
+			const aSelectedItems = oModel.getProperty("/selectedItems") || [];
+			
+			// Validate index
+			if (iIndex < 0 || iIndex >= aSelectedItems.length) {
+				sap.m.MessageToast.show("Invalid item index");
+				return;
+			}
+			
+			// Show confirmation dialog
+			sap.m.MessageBox.confirm("Are you sure you want to delete this item?", {
+				title: "Confirm Deletion",
+				onClose: (oAction) => {
+					if (oAction === sap.m.MessageBox.Action.OK) {
+						// Remove the item from the array
+						aSelectedItems.splice(iIndex, 1);
+						
+						// Update the model with the modified array
+						oModel.setProperty("/selectedItems", aSelectedItems);
+						
+						// Update totals for both tables
+						this._updateTotalAmount();
+						this._updateChangeToTotal();
+						
+						// Hide total boxes if no items remain
+						if (aSelectedItems.length === 0) {
+							var oChangeFromHBox = this.byId("hbxChangeFrom");
+							var oChangeToHBox = this.byId("hbxChangeTo");
+							
+							if (oChangeFromHBox) {
+								oChangeFromHBox.setVisible(false);
+							}
+							if (oChangeToHBox) {
+								oChangeToHBox.setVisible(false);
+							}
+						}
+						
+						sap.m.MessageToast.show("Item deleted successfully");
+					}
 				}
 			});
 		},
         // #endregion
 
-        // #region onFormSubmit
-        onFormSubmit: function () {
-			this._ExtractChangeData();
-
-			// Check for edit or new request
-			const sWi = (this.sWi) ? this.sWi : "0";
-            const uuid = this.uuid;
-
-			// Get the form details
-            const oModel = this.getOwnerComponent().getModel();
-			const oFormReq = this.getOwnerComponent().getModel("formDetails").getData();
-			const oChangeToData = this.getOwnerComponent().getModel("extractedOrderItems").getData();			
+		// #region Change From Total
+		_calculateTotalAmount: function() {
+			const oModel = this.getView().getModel("selectedOrderItems");
+			const aItems = oModel.getProperty("/selectedItems") || [];
 			
-			// Convert note to nested array of objects
-			const oNote = {
-				Creator: this.sInitiator,
-				RequestedBy: this.byId("txtRequestedBy").getText(),
-				RequestedDate: this.byId("txtRequestedDate").getText(),
-				Reason: oFormReq.reasonOfAmendments,
-				ChangeToItems: oChangeToData.extractedItems,
-				Initials: this._createInitials(this.sInitiator)
-			}
+			const fTotal = aItems.reduce(function(sum, item) {
+				const fNetValue = parseFloat(item.NetValue) || 0;
+				return sum + fNetValue;
+			}, 0);
 			
-			oFormReq.reasonOfAmendments = [oNote];
-
-			// Perform validation
-			const bValid = this._performValidation(oFormReq);
-			
-			// Submit the request
-			if (bValid) {
-				// Convert the form request details to json
-				const sPayload = JSON.stringify(oFormReq),
-					dCreateTime = new Date();
-
-					console.log("payload: ", sPayload);
-					
-
-				// Format the create time
-				const oFormat = DateFormat.getDateInstance({
-					pattern: "PThh'H'mm'M'ss'S'"
-				});
-
-				// Build the details of the request
-				const oEntity = {
-					Process: 'ORDAMD',
-					Wi: sWi,
-					CreateDate: new Date(),
-					CreateTime: oFormat.format(dCreateTime),
-					Status: "READY",
-					Initiator: "",
-					Payload: sPayload,
-					Refguid: uuid
-				}               
-
-				// Send the request to create the new form
-				oModel.create("/FormSet", oEntity, {
-					success: () => {
-						// Display success message
-						const sMsg = 'Request Created Successfully';
-						MessageToast.show(sMsg);
-						this.oRouter.navTo("master");
-					},
-					error: (oResponse) => {
-						console.error(oResponse);
-					}
-				});
-			}
+			return this._formatCurrency(fTotal);
 		},
-        // #endregion
+
+		// Function to update the total when data changes
+		_updateTotalAmount: function() {
+			const sTotalAmount = this._calculateTotalAmount();
+			const oTotalText = this.byId("totalAmountText");
+			if (oTotalText) oTotalText.setText(sTotalAmount);
+		},
+
+		_onSelectedItemsChanged: function() {			
+			// Update the total amount
+			this._updateTotalAmount();
+			
+			// Show the total HBox
+			const oHBox = this.byId("hbxChangeFrom");
+			if (oHBox) oHBox.setVisible(true);
+		},
+		// #endregion
+
+		// #region Change To Total
+		_calculateChangeToTotal: function() {
+			const oTable = this.byId("tblChangeTo");
+			const aItems = oTable.getItems();
+			let fTotal = 0;
+			
+			aItems.forEach(function(oItem) {
+				const aCells = oItem.getCells();
+				// The Total Amount input is the 5th cell (index 4)
+				const oTotalAmountInput = aCells[4];
+				if (oTotalAmountInput && oTotalAmountInput.getValue) {
+					const sValue = oTotalAmountInput.getValue();
+					const fValue = parseFloat(sValue) || 0;
+					fTotal += fValue;
+				}
+			});
+			
+			return this._formatCurrency(fTotal);
+		},
+
+		// Function to update the Change To total
+		_updateChangeToTotal: function() {
+			const sTotalAmount = this._calculateChangeToTotal();
+			const oTotalText = this.byId("changeToTotalAmountText");
+			if (oTotalText) oTotalText.setText(sTotalAmount);
+		},
+
+		// Function to handle input changes in the Change To table
+		_onTotalAmountInputChange: function() { this._updateChangeToTotal(); },
+
+		// Function to attach change events to all Total Amount inputs
+		_attachChangeToInputEvents: function() {
+			const oTable = this.byId("tblChangeTo");
+			const aItems = oTable.getItems();
+			
+			aItems.forEach(function(oItem) {
+				const aCells = oItem.getCells();
+				// The Total Amount input is the 5th cell (index 4)
+				const oTotalAmountInput = aCells[4];
+				if (oTotalAmountInput && oTotalAmountInput.attachChange) oTotalAmountInput.attachChange(this._onTotalAmountInputChange.bind(this));
+			}.bind(this));
+		},
+
+		// Call this after the table is rendered or items are added
+		_onChangeToTableUpdateFinished: function() {
+			this._attachChangeToInputEvents();
+			this._updateChangeToTotal();
+			
+			// Show the total HBox
+			const oHBox = this.byId("hbxChangeTo");
+			if (oHBox) oHBox.setVisible(true);
+		},
+		// #endregion
 
 		/* =========================================================== */
-		/* Sales Orders Value Help                                           */
+		/* Sales Orders Value Help                                     */
 		/* =========================================================== */
 
 		// #region Sales Orders VH
@@ -514,6 +524,23 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 
 		onOrdersVHAfterClose: function () { this._oSalesOrderDialog.destroy(); },	
 
+		onOrdersVHAfterOpen: function(oEvent) {
+			var oDialog = oEvent.getSource();
+			
+			// Get all buttons in the dialog
+			var aButtons = oDialog.getButtons();
+			
+			aButtons.forEach(function(oButton) {
+				// Check if this is the cancel button
+				if (oButton.getText() === "Cancel" || oButton.getMetadata().getName() === "sap.m.Button") {
+					var sText = oButton.getText();
+					if (sText && sText.toLowerCase().includes("cancel")) {
+						oButton.setIcon("sap-icon://cancel");
+					}
+				}
+			});
+		},
+
 		onFilterBarSearch: function () {
 			var sSearchQuery = this._oBasicSearchField.getValue(),
 				oSearchFilter = new Filter("SalesDocument", FilterOperator.Contains, sSearchQuery);
@@ -568,10 +595,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		},
 
 		_bindUITable: function (oTable, oDialog) {
-			const sAccountNoTxt = "Sales Document ID";
-			const sAccountNameTxt = "Date Valid From";
-		
-			
 			// Bind rows to the ODataModel
 			oTable.bindRows({
 				path: "/SalesOrderSet",
@@ -581,11 +604,17 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			});
 		
 			// Add columns
-			const oColumnAccountNo = this._createColumn(sAccountNoTxt, "SalesDocument");
-			const oColumnAccountName = this._createColumn(sAccountNameTxt, "ValidFrom");
-		
-			oTable.addColumn(oColumnAccountNo);
-			oTable.addColumn(oColumnAccountName);
+			const oSalesDocument = this._createColumn("Sales Document", "SalesDocument");
+			const oCreatedBy = this._createColumn("Created By", "CreatedBy");
+			const oCurrency = this._createColumn("Currency", "Currency");
+			const oValidFromDate = this._createColumn("Date Valid From", "ValidFrom", this._formatDate.bind(this));
+			const oValidToDate = this._createColumn("Date Valid To", "ValidTo", this._formatDate.bind(this));
+
+			oTable.addColumn(oSalesDocument);
+			oTable.addColumn(oCreatedBy);
+			oTable.addColumn(oCurrency);
+			oTable.addColumn(oValidFromDate);
+			oTable.addColumn(oValidToDate);
 		
 			// Enable single selection mode
 			oTable.setSelectionMode("Single");
@@ -622,27 +651,43 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			oDialog.update();
 		},
 		
-		_createColumn: function (sLabelText, sFieldName) {
+		_createColumn: function (sLabelText, sFieldName, fnFormatter) {
 			const oLabel = new Label({
 				text: sLabelText
 			});
-			const oTemplate = new sap.m.Text({
-				wrapping: false,
-				text: "{" + sFieldName + "}"
-			});
-
+			
+			let oTemplate;
+			if (fnFormatter) {
+				oTemplate = new sap.m.Text({
+					wrapping: false,
+					text: {
+						path: sFieldName,
+						formatter: fnFormatter
+					}
+				});
+			} else {
+				oTemplate = new sap.m.Text({
+					wrapping: false,
+					text: "{" + sFieldName + "}"
+				});
+			}
+		
 			const oColumn = new UIColumn({
 				label: oLabel,
 				template: oTemplate
 			});
-
+		
 			oColumn.data({
 				fieldName: sFieldName
 			});
-
+		
 			return oColumn;
 		},
 		// #endregion
+
+		/* =========================================================== */
+		/* Sales Order Items Value Help                                */
+		/* =========================================================== */
 
 		// #region Order Items VH
 		_openSalesOrderDetailDialog: function (sSalesDocId) {
@@ -718,10 +763,10 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		// #region Sales Order Import		
 		onSalesOrderImport: function(oEvent) {
 			// Get the dialog (assuming this function is called from the dialog context)
-			var oDialog = oEvent.getSource().getParent();
+			const oDialog = oEvent.getSource().getParent();
 			
 			// Find the table within the dialog
-			var oTable = oDialog.getContent()[0].getItems().find(function(item) {
+			const oTable = oDialog.getContent()[0].getItems().find(function(item) {
 				return item.isA("sap.m.Table");
 			});
 			
@@ -731,7 +776,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			}
 			
 			// Get selected items from the table
-			var aSelectedItems = oTable.getSelectedItems();
+			const aSelectedItems = oTable.getSelectedItems();
 			
 			if (aSelectedItems.length === 0) {
 				MessageToast.show("Please select at least one item");
@@ -739,15 +784,15 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			}
 			
 			// Extract data from selected rows
-			var aSelectedData = [];
+			let aSelectedData = [];
 			
 			aSelectedItems.forEach((oSelectedItem) => {
-				var oBindingContext = oSelectedItem.getBindingContext("orderDetails");
+				const oBindingContext = oSelectedItem.getBindingContext("orderDetails");
 				if (oBindingContext) {
-					var oItemData = oBindingContext.getObject();
+					const oItemData = oBindingContext.getObject();
 					
 					// Create a clean object with the required fields
-					var oSelectedRowData = {
+					const oSelectedRowData = {
 						Item: oItemData.Item,
 						Material: oItemData.Material,
 						Quantity: oItemData.Quantity,
@@ -755,25 +800,23 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 						NetValue: oItemData.NetValue
 					};
 
-					var oTextControl = this.byId("txtLineItem"); // use global ID if created via JS
+					const oTextControl = this.byId("txtLineItem"); // use global ID if created via JS
 			
-					if (oTextControl) {
-						oTextControl.setText(oItemData.Item);
-					}
-					
+					if (oTextControl) oTextControl.setText(oItemData.Item);
+
 					aSelectedData.push(oSelectedRowData);
 				}
 			});
 			
 			// Create the final JSON model with selected items
-			var oSelectedItemsModel = {
+			const oSelectedItemsModel = {
 				selectedItems: aSelectedData,
 				totalSelectedItems: aSelectedData.length,
 				selectionTimestamp: new Date().toISOString()
 			};
 			
 			// Save to a JSON model (you can modify this based on your needs)
-			var oSelectedItemsJSONModel = new sap.ui.model.json.JSONModel(oSelectedItemsModel);
+			const oSelectedItemsJSONModel = new sap.ui.model.json.JSONModel(oSelectedItemsModel);
 			
 			// Set the model to the view or component (adjust the model name as needed)
 			this.getView().setModel(oSelectedItemsJSONModel, "selectedOrderItems");
@@ -788,36 +831,221 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			this._oSalesOrderDialog.close();
 		},
 		// #endregion
+		
+		/* =========================================================== */
+		/* Attachment Upload                                           */
+		/* =========================================================== */
 
-		// #region _ExtractChangeData
-		_ExtractChangeData: function () {
+        // #region onBeforeUploadStarts
+        onBeforeUploadStarts: function (oEvent) {
+			const oHeaderItem = oEvent.getParameter("item");
+			const slugVal = oHeaderItem.getFileName() + "," + this.uuid + ",ZCA_ATTACH";
+
+			oHeaderItem.removeAllStatuses();
+
+			oHeaderItem.addHeaderField(new sap.ui.core.Item({
+				key: "slug",
+				text: slugVal
+			}));
+
+			oHeaderItem.addHeaderField(new sap.ui.core.Item({
+				key: "x-csrf-token",
+				text: this.getOwnerComponent().getModel().getSecurityToken()
+			}));
+		},
+        // #endregion
+
+        // #region onUploadComplete
+        onUploadComplete: function (oEvent) {
+			const oStatus = oEvent.getParameter("status"),
+				oItem = oEvent.getParameter("item"),
+				oUploadSet = this.getView().byId("ufuUploadedDocument");
+
+			if (oStatus && oStatus !== 201) {
+				oItem.setUploadState("Error");
+				oItem.removeAllStatuses();
+			} else {
+				oUploadSet.removeIncompleteItem(oItem);
+				this._setAttachmentModel();
+			}
+		},
+        // #endregion
+
+        // #region onRemovePressed
+        onRemovePressed: function (oEvent) {
+			// Prevent the default confirmation popup
+			oEvent.preventDefault();
+
+			// Get the item details
+			const oItem = oEvent.getSource(),
+				sGuid = oItem.getBinding("fileName").getContext().getObject().Guid,
+				that = this;
+
+			// Build the path to the AttachmentSet entity
+			const sPath = "/AttachmentSet('" + sGuid + "')";
+
+			// Remove the attachment from the backend
+			this.getOwnerComponent().getModel().remove(sPath, {
+				success: function () {
+					// Refresh the list
+					that._setAttachmentModel();
+					sap.m.MessageToast.show("Attachment removed from request");
+				},
+				error: function () {
+					sap.m.MessageToast.show("Error occured reading data");
+				}
+			});
+		},
+        // #endregion
+
+		/* =========================================================== */
+		/* Form Submit                                                 */
+		/* =========================================================== */
+
+        // #region onFormSubmit
+        onFormSubmit: function () {
+			this._ExtractChangeFromData();
+			this._ExtractChangeToData();
+
+			// Check for edit or new request
+			const sWi = (this.sWi) ? this.sWi : "0";
+            const uuid = this.uuid;
+
+			// Get the form details
+            const oModel = this.getOwnerComponent().getModel();
+			const oFormDetails = this.getOwnerComponent().getModel("formDetails").getData();
+			const oChangeToData = this.getOwnerComponent().getModel("extractedChangeToItems").getData();			
+			const oChangeFromData = this.getOwnerComponent().getModel("extractedChangeFromItems").getData();
+			
+			oFormDetails.Creator = this.sInitiator;
+			oFormDetails.Initials = this._createInitials(this.sInitiator);
+			oFormDetails.RequestedBy = this.byId("txtRequestedBy").getText();
+			oFormDetails.RequestedDate = this.byId("txtRequestedDate").getText();
+			oFormDetails.ChangeFromItems = oChangeFromData.extractedItems;
+			oFormDetails.ChangeToItems = oChangeToData.extractedItems;
+
+			// Perform validation
+			const bValid = this._performValidation(oFormDetails);
+			
+			// Submit the request
+			if (bValid) {
+				// Convert the form request details to json
+				const sPayload = JSON.stringify(oFormDetails),
+					dCreateTime = new Date();					
+
+				// Format the create time
+				const oFormat = DateFormat.getDateInstance({
+					pattern: "PThh'H'mm'M'ss'S'"
+				});
+
+				// Build the details of the request
+				const oEntity = {
+					Title: "Amendment/Cancellation Form Details",
+					Process: 'ORDAMD',
+					Wi: sWi,
+					CreateDate: new Date(),
+					CreateTime: oFormat.format(dCreateTime),
+					Status: "READY",
+					Initiator: "",
+					Payload: sPayload,
+					Refguid: uuid
+				} 				
+
+				// Send the request to create the new form
+				oModel.create("/FormSet", oEntity, {
+					success: () => {
+						// Display success message
+						this._clearFormValues()
+						const sMsg = 'Request Created Successfully';
+						MessageToast.show(sMsg);
+						this.oRouter.navTo("master");
+					},
+					error: (oError) => {
+						console.error(oError);
+					}
+				});
+			}
+		},
+        // #endregion
+
+		// #region _ExtractChangeFromData
+		_ExtractChangeFromData: function () {
+			const oTable = this.byId("tblChangeFrom");
+			const aTableItems = oTable.getItems();
+			const aExtractedData = [];
+		
+			aTableItems.forEach((oRow) => {
+				const aCells = oRow.getCells();
+				if (aCells.length >= 6) {
+					const sItem = aCells[0].getText(); // Line Item No.
+					const sUniqueCode = aCells[1].getText(); // Unique Code
+					const sQuantity = aCells[2].getText(); // Quantity
+		
+					// Revert formatted price and total back to raw numbers
+					const sFormattedPrice = aCells[3].getText();
+					const sPrice = this._unformatCurrency(sFormattedPrice);
+		
+					const sFormattedTotalAmount = aCells[4].getText();
+					const sTotalAmount = this._unformatCurrency(sFormattedTotalAmount);
+		
+					const oDatePicker = aCells[5];
+					const sRequestedDate = oDatePicker.getValue();
+		
+					aExtractedData.push({
+						Item: sItem,
+						UniqueCode: sUniqueCode,
+						Quantity: sQuantity,
+						Price: sPrice,
+						TotalAmount: sTotalAmount,
+						RequestedDate: sRequestedDate,
+					});
+				}
+			});
+		
+			const oModel = new sap.ui.model.json.JSONModel({ extractedItems: aExtractedData });
+			this.getOwnerComponent().setModel(oModel, "extractedChangeFromItems");
+		},		
+		// #endregion
+
+		// #region _ExtractChangeToData
+		_ExtractChangeToData: function () {
 			const oTable = this.byId("tblChangeTo");
 			const aTableItems = oTable.getItems();
 			const aExtractedData = [];
 		
 			aTableItems.forEach((oRow) => {
 				const aCells = oRow.getCells();
-				if (aCells.length === 6) {
+		
+				// Make sure the row has 7 cells (based on updated structure)
+				if (aCells.length === 7) {
+					// Cell 0: Line Item No. (Text)
 					const sItem = aCells[0].getText();
+		
+					// Cell 1: Unique Code (Input)
 					const sNewUniqueCode = aCells[1].getValue();
 		
+					// Cell 2: New Quantity (HBox with Input + ComboBox)
 					const oQtyHBox = aCells[2];
 					const oQuantityInput = oQtyHBox.getItems()[0];
 					const oQuantityUnitCombo = oQtyHBox.getItems()[1];
 					const sNewQuantity = oQuantityInput.getValue();
 					const sNewQuantityUnit = oQuantityUnitCombo.getSelectedKey();
 		
+					// Cell 3: New Price (HBox with Input + ComboBox)
 					const oPriceHBox = aCells[3];
 					const oPriceInput = oPriceHBox.getItems()[0];
 					const oPriceUnitCombo = oPriceHBox.getItems()[1];
 					const sNewPrice = oPriceInput.getValue();
 					const sNewPriceUnit = oPriceUnitCombo.getSelectedKey();
 		
+					// Cell 4: Total Amount (Input)
 					const sNewTotalAmount = aCells[4].getValue();
 		
+					// Cell 5: Requested Date (DatePicker)
 					const oDatePicker = aCells[5];
-					const sNewRequestedDate = oDatePicker.getValue(); // Format depends on configuration
+					const sNewRequestedDate = oDatePicker.getValue();
 		
+					// Push extracted row object
 					aExtractedData.push({
 						Item: sItem,
 						NewUniqueCode: sNewUniqueCode,
@@ -832,8 +1060,8 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			});
 		
 			const oModel = new sap.ui.model.json.JSONModel({ extractedItems: aExtractedData });
-			this.getOwnerComponent().setModel(oModel, "extractedOrderItems");			
-		}
+			this.getOwnerComponent().setModel(oModel, "extractedChangeToItems");
+		},
 		// #endregion
 		
     });

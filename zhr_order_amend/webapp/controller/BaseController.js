@@ -140,5 +140,32 @@ sap.ui.define([
 			this.getOwnerComponent().setModel(oMotGenReq, "formDetails");
 		},
 
+		_formatCurrency: function (value) {
+			if (!value || isNaN(value)) return "";
+			
+			const formatter = sap.ui.core.format.NumberFormat.getFloatInstance({
+				minFractionDigits: 2,
+				maxFractionDigits: 2,
+				groupingEnabled: true,
+				groupingSeparator: ' ',
+				decimalSeparator: '.'
+			});
+			
+			return 'R ' + formatter.format(parseFloat(value));
+		},
+
+		check: function () {
+			const oModel = this.getOwnerComponent().getModel();
+			
+			oModel.read("/FormSet", {
+				urlParameter: {
+					"$filter": "Process eq 'ORDAMD'"
+				},
+				success: (oData) => {
+					console.log("form data: ", oData);
+					
+				}
+			})
+		},
 	});
 });

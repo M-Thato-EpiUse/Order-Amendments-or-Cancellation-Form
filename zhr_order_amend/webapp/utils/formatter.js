@@ -10,8 +10,8 @@ sap.ui.define([], function () {
 
 			// Get the process text
 			switch (sProcess) {
-			case "CREDAP":
-				sProcessTxt = "Credit Application";
+			case "ORDAMD":
+				sProcessTxt = "Order Amendments/Cancellation Form";
 				break;
 			default:
 				sProcessTxt = "Process";

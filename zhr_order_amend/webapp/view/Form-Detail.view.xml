@@ -1,37 +1,35 @@
-<mvc:View controllerName="com.epiuse.zhrorderamend.controller.Create-Change-Form"
- xmlns:mvc="sap.ui.core.mvc"
-    xmlns="sap.m"
-    xmlns:l="sap.ui.layout"
-	xmlns:form="sap.ui.layout.form"
+<mvc:View 
+	controllerName="com.epiuse.zhrorderamend.controller.Form-Detail" 
+	xmlns="sap.m" 
+	xmlns:semantic="sap.f.semantic"
+	xmlns:footerbar="sap.ushell.ui.footerbar" 
+	xmlns:mvc="sap.ui.core.mvc"
     xmlns:core="sap.ui.core"
-    xmlns:semantic="sap.f.semantic"
     xmlns:unified="sap.ui.unified"
-    xmlns:upload="sap.m.upload">
-    <Page id="create-change-form" title="{i18n>title}" showHeader="false" showFooter="true">
-
-        <!-- Custom Header Toolbar -->
-        <Toolbar class="header-toolbar" height="70px">
-            <HBox class="header-panel" width="100%" justifyContent="SpaceBetween" alignItems="Center">
-                <HBox alignItems="Center" justifyContent="Start"> 
-                    <Button icon="sap-icon://nav-back" text="Back" press="onNavBack" />
-                </HBox>
-
-                <HBox class="headertext-container" alignItems="Center" justifyContent="Center">
-                    <Title id="ttlMcLeanHeading" level="H3" titleStyle="H3" text="Order Amendments or Cancelation Application Form" />
-                </HBox>
-
-                <HBox alignItems="Center" justifyContent="End" renderType="Bare">
-                    <Button icon="sap-icon://add" text="Import Sales Order" press="onOrderSearchVH" />
-                </HBox>
-            </HBox>
-        </Toolbar>
-
-        <content>
-            <VBox>
-               
+    xmlns:upload="sap.m.upload"
+	xmlns:form="sap.ui.layout.form">
+	
+	<semantic:SemanticPage 
+		id="Form-Detail"
+		busy="{detailView>/busy}" 
+		busyIndicatorDelay="{detailView>/delay}"
+		showFooter="true">
+		
+		<semantic:titleHeading>
+			<Title id="txtDetailTitle" level="H2"/>
+		</semantic:titleHeading>
+		
+		<semantic:headerContent>
+			<ObjectAttribute id="oaWorkItem" title="{i18n>xfldWi}" text=""/>
+			<ObjectAttribute id="oaCreatedDate" title="{i18n>xfldCreateDate}" text=""/>
+		</semantic:headerContent>
+		
+		<semantic:content>
+			
+			<VBox>
                 <!-- Filled by the sales (Input by Initiator) -->
                 <HBox class="sapUiSmallMarginTop" width="100%" justifyContent="Center">
-                    <HBox class="roundedBorderRadius whiteBackground sapUiResponsiveContentPadding" width="90%" justifyContent="SpaceAround">
+                    <HBox class="roundedBorderRadius whiteBackground sapUiResponsiveContentPadding" width="100%" justifyContent="SpaceAround">
                         <HBox width="100%" justifyContent="Center">
                             <VBox width="50%">
                                 <form:SimpleForm
@@ -47,16 +45,16 @@
                                     columnsM="1">
                                     <form:content>
                                         <Label text="Requested By" />
-                                        <Text id="txtRequestedBy" />
+                                        <Text id="txtdRequestedBy" />
 
                                         <Label text="Customer Name" />
-                                        <Input width="300px" value="{formDetails>/CustomerName}" />
+                                        <Text id="txtdCustomerName" />
 
                                         <Label text="Branch/Sector Name" />
-                                        <Input width="300px" value="{formDetails>/BranchOrSectorName}" />
+                                        <Text id="txtdBranchName" />
 
                                         <Label text="PO Date" />
-                                        <DatePicker width="300px" placeholder="Enter Date" value="{formDetails>/PoDate}" />
+                                        <Text id="txtdPoDate" />
                                     </form:content>
                                 </form:SimpleForm>
                             </VBox>
@@ -75,18 +73,18 @@
                                     columnsM="1">
                                     <form:content>
                                         <Label text="Requested Date" />
-                                        <Text id="txtRequestedDate" />
+                                        <Text id="txtdRequstDate" />
 
                                         <Label text="PO/Contract No." />
-                                        <Input width="300px" value="{formDetails>/PoContractNumber}" />
+                                        <Text id="txtdContractNumber" />
 
                                         <Label text="Sales Order No." />
-                                        <Input id="inSalesOrderNo" width="300px" value="{formDetails>/SalesOrderNumber}" enabled="false" />
+                                        <Text id="txtdSalesOrderNo" />
 
                                         <Label text="Request Type" />
                                         <HBox>
-                                            <CheckBox class="sapUiTinyMarginEnd" text="Amendment" selected="{formDetails>/RequestTypeAmendment}" />
-                                            <CheckBox text="Cancellation" selected="{formDetails>/RequestTypeCancellation}" />
+                                            <Text id="txtdAmendment" class="sapUiTinyMarginEnd" />
+                                            <Text id="txtdCancellation" />
                                         </HBox>
                                     </form:content>
                                 </form:SimpleForm>
@@ -100,65 +98,51 @@
                     <HBox width="100%" justifyContent="SpaceAround">
                         <VBox width="100%" alignItems="Center" justifyContent="Center">
                             <VBox class="sapUiSmallMarginBottom" width="90%">
-                                <Table id="tblChangeFrom" class="customHeaderHeight" headerText="Change From" inset="false" items="{selectedOrderItems>/selectedItems}">
+                                <Table class="customHeaderHeight" headerText="Change From" inset="false" items="{changeFromPayload>/}">
                                     <columns>
-                                        <Column width="8em">
+                                        <Column>
                                             <Text text="Line Item No." />
                                         </Column>
-                                        <Column width="12em">
+                                        <Column importance="Low" demandPopin="true">
                                             <Text text="Unique Code" />
                                         </Column>
                                         <Column>
                                             <Text text="Quantity" />
                                         </Column>
                                         <Column>
-                                            <Text text="Price" />
+                                            <Text/>
                                         </Column>
                                         <Column>
                                             <Text text="Total Amount (R)" />
                                         </Column>
-                                        <Column width="15em">
+                                        <Column>
                                             <Text text="Previous Customer Requested Delivery Date" />
                                         </Column>
-                                        <Column width="50px"/>
                                     </columns>
 
                                     <items>
                                         <ColumnListItem>
                                             <cells>        
-                                                <Text text="{selectedOrderItems>Item}" />
-                                                <Text text="{selectedOrderItems>Material}" />
-                                                <Text text="{selectedOrderItems>Quantity}" />
+                                                <Text text="{changeFromPayload>Item}" />
+                                                <Text text="{changeFromPayload>UniqueCode}" />
+                                                <Text text="{changeFromPayload>Quantity}" />
                                                 <Text text="{
-                                                    path: 'selectedOrderItems>NetPrice',
+                                                    path: 'changeFromPayload>Price',
                                                     formatter: '._formatCurrency'
                                                 }" />
                                                 <Text text="{
-                                                    path: 'selectedOrderItems>NetValue',
+                                                    path: 'changeFromPayload>TotalAmount',
                                                     formatter: '._formatCurrency'
                                                 }" />
-                                                <DatePicker id="dtpOldRequestedDate" placeholder="Enter Date" />
-                                                <Button icon="sap-icon://delete" press="onDeleteItem" />
+                                                <Text text="{changeFromPayload>RequestedDate}" />
                                             </cells>
                                         </ColumnListItem>
                                     </items>
                                 </Table>
-
-                                <HBox id="hbxChangeFrom" class="sapUiResponsiveContentPadding whiteBackground" visible="false">
-                                    <HBox justifyContent="End" width="60%" >
-                                        <Title class="sapUiSmallMarginEnd" titleStyle="H6" text="Total Amount:" />
-                                    </HBox>
-                                    <HBox justifyContent="Start" width="40%">
-                                        <Title class="sapUiTinyMarginBegin" id="totalAmountText" titleStyle="H6" text="{
-                                            path: 'selectedOrderItems>/selectedItems',
-                                            formatter: '._calculateTotalAmount'
-                                        }" />
-                                    </HBox>
-                                </HBox>
                             </VBox>
 
                             <VBox width="90%">
-                                <Table id="tblChangeTo" class="customHeaderHeight" headerText="Change To" inset="false" items="{selectedOrderItems>/selectedItems}" >
+                                <!-- <Table class="customHeaderHeight" headerText="Change To" inset="false" items="{selectedOrderItems>/selectedItems}" >
                                     <columns>
                                         <Column width="8em">
                                             <Text text="Line Item No." />
@@ -185,40 +169,31 @@
                                         <ColumnListItem>
                                             <cells>       
                                                 <Text text="{selectedOrderItems>Item}" />
-                                                <Input id="inUniqueCode" value="" />
+                                                <Input value="" />
 
                                                 <HBox>
-                                                    <Input id="inQuantity" type="Number" value="" />
-                                                    <ComboBox id="cmbQuantityUnit" selectedKey="" width="80px">
+                                                    <Input type="Number" value="" />
+                                                    <ComboBox selectedKey="" width="80px">
                                                         <core:Item key="M" text="M" />
                                                         <core:Item key="KG" text="KG" />
                                                     </ComboBox>
                                                 </HBox>
 
                                                 <HBox>
-                                                    <Input id="inNetPrice" type="Number" value="" />
-                                                    <ComboBox id="cmbPriceUnit" selectedKey="" width="80px" >
+                                                    <Input type="Number" value="" />
+                                                    <ComboBox selectedKey="" width="80px" >
                                                         <core:Item key="R/M" text="R/M" />
                                                         <core:Item key="R/KG" text="R/KG" />
                                                     </ComboBox>
                                                 </HBox>
 
-                                                <Input id="inNetValue" type="Number" value="" change="._onTotalAmountInputChange" />
-                                                <DatePicker id="dtpNewRequestedDate" placeholder="Enter Date" value=""/>
+                                                <Input type="Number" value="" change="._onTotalAmountInputChange" />
+                                                <DatePicker placeholder="Enter Date" value=""/>
                                                 <Button icon="sap-icon://delete" press="onDeleteItem" />
                                             </cells>
                                         </ColumnListItem>
                                     </items>
-                                </Table>
-
-                                <HBox id="hbxChangeTo" class="sapUiResponsiveContentPadding whiteBackground" visible="false">
-                                    <HBox justifyContent="End" width="66%" >
-                                        <Title class="sapUiSmallMarginEnd" titleStyle="H6" text="Total Amount:" />
-                                    </HBox>
-                                    <HBox justifyContent="Start" width="34%" >
-                                        <Title class="sapUiTinyMarginBegin" id="changeToTotalAmountText" titleStyle="H6" text="R 0.00" />
-                                    </HBox>
-                                </HBox>
+                                </Table> -->
                             </VBox>
                         </VBox>
                     </HBox>
@@ -242,7 +217,7 @@
                                     columnsM="1">
                                     <form:content>
                                         <Label text="Reason of Amendments" />
-                                        <TextArea id="textAreaWithoutBinding" value="{formDetails>/ReasonOfAmendments}" showExceededText="true" maxLength="2000" width="100%" height="100px" liveChange="handleLiveChange" valueLiveUpdate="true" />
+                                        <TextArea value="{formDetails>/ReasonOfAmendments}" showExceededText="true" maxLength="2000" width="100%" height="100px" liveChange="handleLiveChange" valueLiveUpdate="true" />
                                     </form:content>
                                 </form:SimpleForm>
                             </VBox>
@@ -269,13 +244,13 @@
                                     <form:content>
                                         <Label text="Order Progress" />
                                             <VBox>
-                                                <CheckBox id="chk1" text="Not planned nor manufactured" select="onOrderProgressSelect" selected="{formDetails>/NotPlannedOrManufatured}" />
-                                                <CheckBox id="chk2" text="Planned but not yet manufactured" select="onOrderProgressSelect" selected="{formDetails>/PlannedNotManufatured}" />
-                                                <CheckBox id="chk3" text="Manufacturing but can be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufaturingAllocated}" />
-                                                <CheckBox id="chk4" text="Manufacturing and cannot be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufacturingNotAllocated}" />
-                                                <CheckBox id="chk5" text="Standard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/StandardAndPromised}" />
-                                                <CheckBox id="chk6" text="Nonstandard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndPromised}" />
-                                                <CheckBox id="chk7" text="Nonstandard product and cannot be promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndNotPromised}" />
+                                                <CheckBox text="Not planned nor manufactured" select="onOrderProgressSelect" selected="{formDetails>/NotPlannedOrManufatured}" />
+                                                <CheckBox text="Planned but not yet manufactured" select="onOrderProgressSelect" selected="{formDetails>/PlannedNotManufatured}" />
+                                                <CheckBox text="Manufacturing but can be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufaturingAllocated}" />
+                                                <CheckBox text="Manufacturing and cannot be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufacturingNotAllocated}" />
+                                                <CheckBox text="Standard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/StandardAndPromised}" />
+                                                <CheckBox text="Nonstandard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndPromised}" />
+                                                <CheckBox text="Nonstandard product and cannot be promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndNotPromised}" />
                                             </VBox>
                                     </form:content>
                                 </form:SimpleForm>
@@ -304,7 +279,7 @@
                                         <VBox>
                                             <Label text="Plant confirmation (Written email attached to this application form can be counted as the confirmation from plant): Yes" />
 
-                                            <upload:UploadSet id="ufuUploadedDocument" showIcons="true" uploadEnabled="true" terminationEnabled="true"
+                                            <upload:UploadSet showIcons="true" uploadEnabled="true" terminationEnabled="true"
                                                 uploadUrl="/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet" instantUpload="true" items="{path: 'oModelAttach>/items' }"
                                                 beforeUploadStarts="onBeforeUploadStarts" uploadCompleted="onUploadComplete" maxFileSize="5">
                                                 <upload:items>
@@ -323,12 +298,29 @@
                     </HBox>
                 </HBox>
             </VBox>
-        </content>
-        <footer>
-			<OverflowToolbar>
-				<ToolbarSpacer/>
-                <Button text="{i18n>xbutSubmit}" press="onFormSubmit" icon="sap-icon://paper-plane"/>
-			</OverflowToolbar>
-		</footer>
-    </Page>
+			
+		</semantic:content>
+		
+		<semantic:closeAction>
+			<semantic:CloseAction id="closeColumn" press=".onCloseDetailPress"/>
+		</semantic:closeAction>
+		
+		<semantic:fullScreenAction>
+			<semantic:FullScreenAction id="enterFullScreen"
+				visible="{= !${device>/system/phone} &amp;&amp; !${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/>
+		</semantic:fullScreenAction>
+		
+		<semantic:exitFullScreenAction>
+			<semantic:ExitFullScreenAction id="exitFullScreen"
+				visible="{= !${device>/system/phone} &amp;&amp; ${appView>/actionButtonsInfo/midColumn/fullScreen}}" press=".toggleFullScreen"/>
+		</semantic:exitFullScreenAction>
+		
+		<semantic:footerCustomActions>
+			<Button text="{i18n>xbutAck}" icon="sap-icon://activity-2" visible="{CanAck}" press=".onAcknowledge"/>
+			<Button text="{i18n>xbutResub}" icon="sap-icon://redo" visible="{CanResub}" press=".onResubmit"/>
+			<Button text="{i18n>xbutEdit}" icon="sap-icon://edit" visible="{CanEdit}" press=".onEdit"/>
+			<Button text="{i18n>xbutPDF}" icon="sap-icon://pdf-attachment" press=".onPrintPDF"/>
+		</semantic:footerCustomActions>
+		
+	</semantic:SemanticPage>
 </mvc:View>

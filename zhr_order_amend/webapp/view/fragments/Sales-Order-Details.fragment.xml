@@ -17,18 +17,24 @@
 							<Text text="{orderDetails>Item}" />
 							<Text text="{orderDetails>Material}" />
 							<Text text="{orderDetails>Quantity}" />
-							<Text text="{orderDetails>NetPrice}" />
-							<Text text="{orderDetails>NetValue}" />
+							<Text text="{
+								path: 'orderDetails>NetPrice',
+								formatter: '._formatCurrency'
+							}" />
+							<Text text="{
+								path: 'orderDetails>NetValue',
+								formatter: '._formatCurrency'
+							}" />
 						</cells>
 					</ColumnListItem>
 				</items>
 			</Table>
 		</VBox>
         <beginButton>
-			<Button text="Import" press=".onSalesOrderImport" />
+			<Button text="Import" press=".onSalesOrderImport" icon="sap-icon://download-from-cloud" />
 		</beginButton>
 		<endButton>
-			<Button text="Back" press=".onSalesOrderBack" />
+			<Button text="Back" press=".onSalesOrderBack" icon="sap-icon://nav-back" />
 		</endButton>
 	</Dialog>
 </core:FragmentDefinition>
