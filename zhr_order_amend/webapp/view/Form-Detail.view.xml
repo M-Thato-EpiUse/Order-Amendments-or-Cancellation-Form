@@ -82,10 +82,7 @@
                                         <Text id="txtdSalesOrderNo" />
 
                                         <Label text="Request Type" />
-                                        <HBox>
-                                            <Text id="txtdAmendment" class="sapUiTinyMarginEnd" />
-                                            <Text id="txtdCancellation" />
-                                        </HBox>
+                                        <Text id="txtdRequestType" />
                                     </form:content>
                                 </form:SimpleForm>
                             </VBox>
@@ -98,7 +95,7 @@
                     <HBox width="100%" justifyContent="SpaceAround">
                         <VBox width="100%" alignItems="Center" justifyContent="Center">
                             <VBox class="sapUiSmallMarginBottom" width="90%">
-                                <Table class="customHeaderHeight" headerText="Change From" inset="false" autoPopinMode="true" alternateRowColors="true" items="{formDataModel>/ChangeFromItems}">
+                                <Table id="tbldChangeFrom" class="customHeaderHeight" headerText="Change From" inset="false" autoPopinMode="true" alternateRowColors="true" items="{formDataModel>/ChangeFromItems}">
                                     <columns>
                                         <Column width="15em" importance="Low">
                                             <Text text="Line Item No." />
@@ -148,7 +145,7 @@
                             </VBox>
 
                             <VBox class="sapUiSmallMarginTop" width="90%">
-                                <Table class="customHeaderHeight" headerText="Change To" inset="false" autoPopinMode="true" alternateRowColors="true" items="{formDataModel>/ChangeToItems}" >
+                                <Table id="tbldChangeTo" class="customHeaderHeight" headerText="Change To" inset="false" autoPopinMode="true" alternateRowColors="true" items="{formDataModel>/ChangeToItems}" >
                                     <columns>
                                         <Column width="15em" importance="Low">
                                             <Text text="Line Item No." />

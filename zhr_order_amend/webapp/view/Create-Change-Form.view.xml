@@ -50,13 +50,14 @@
                                         <Text id="txtRequestedBy" />
 
                                         <Label text="Customer Name" />
-                                        <Input width="300px" value="{formDetails>/CustomerName}" />
+                                        <Input id="inCustomerName" width="300px" value="{formDetails>/CustomerName}" />
 
                                         <Label text="Branch/Sector Name" />
-                                        <Input width="300px" value="{formDetails>/BranchOrSectorName}" />
+                                        <Input id="inBranchName" width="300px" value="{formDetails>/BranchOrSectorName}" />
 
                                         <Label text="PO Date" />
                                         <DatePicker
+                                            id="dtpPoDate"
                                             width="300px"
                                             placeholder="Enter Date"
                                             value="{formDetails>/PoDate}"
@@ -83,15 +84,15 @@
                                         <Text id="txtRequestedDate" />
 
                                         <Label text="PO/Contract No." />
-                                        <Input width="300px" value="{formDetails>/PoContractNumber}" />
+                                        <Input id="inContractNo" width="300px" value="{formDetails>/PoContractNumber}" />
 
                                         <Label text="Sales Order No." />
                                         <Input id="inSalesOrderNo" width="300px" value="{formDetails>/SalesOrderNumber}" enabled="false" />
 
                                         <Label text="Request Type" />
                                         <HBox>
-                                            <CheckBox class="sapUiTinyMarginEnd" text="Amendment" selected="{formDetails>/RequestTypeAmendment}" />
-                                            <CheckBox text="Cancellation" selected="{formDetails>/RequestTypeCancellation}" />
+                                            <CheckBox id="chkAmendment" class="sapUiTinyMarginEnd" text="Amendment" select=".onAmendmentSelect" selected="{formDetails>/RequestTypeAmendment}"  />
+                                            <CheckBox id="chkCancellation" text="Cancellation" select=".onCancellationSelect" selected="{formDetails>/RequestTypeCancellation}" />
                                         </HBox>
                                     </form:content>
                                 </form:SimpleForm>
@@ -132,16 +133,10 @@
                                         <ColumnListItem>
                                             <cells>        
                                                 <Text text="{selectedOrderItems>Item}" />
-                                                <Text text="{selectedOrderItems>Material}" />
+                                                <Text text="{= ${selectedOrderItems>Material} || ${selectedOrderItems>UniqueCode} || ''}" />
                                                 <Text text="{selectedOrderItems>Quantity}" />
-                                                <Text text="{
-                                                    path: 'selectedOrderItems>NetPrice',
-                                                    formatter: '._formatCurrency'
-                                                }" />
-                                                <Text text="{
-                                                    path: 'selectedOrderItems>NetValue',
-                                                    formatter: '._formatCurrency'
-                                                }" />
+                                                <Text text="{= ${selectedOrderItems>NetPrice} || ${selectedOrderItems>Price} || ''}" />
+                                                <Text text="{= ${selectedOrderItems>NetValue} || ${selectedOrderItems>TotalAmount} || ''}" />
                                                 <DatePicker
                                                     id="dtpOldRequestedDate"
                                                     placeholder="Enter Date"
@@ -254,7 +249,7 @@
                                     columnsM="1">
                                     <form:content>
                                         <Label text="Reason of Amendments" />
-                                        <TextArea id="textAreaWithoutBinding" value="{formDetails>/ReasonOfAmendments}" showExceededText="true" maxLength="2000" width="100%" height="100px" liveChange="handleLiveChange" valueLiveUpdate="true" />
+                                        <TextArea id="txtaReasonOfAmendments" value="{formDetails>/ReasonOfAmendments}" showExceededText="true" maxLength="2000" width="100%" height="100px" liveChange="handleLiveChange" valueLiveUpdate="true" />
                                     </form:content>
                                 </form:SimpleForm>
                             </VBox>
@@ -281,13 +276,13 @@
                                     <form:content>
                                         <Label text="Order Progress" />
                                             <VBox>
-                                                <CheckBox id="chk1" text="Not planned nor manufactured" select="onOrderProgressSelect" selected="{formDetails>/NotPlannedOrManufatured}" />
-                                                <CheckBox id="chk2" text="Planned but not yet manufactured" select="onOrderProgressSelect" selected="{formDetails>/PlannedNotManufatured}" />
-                                                <CheckBox id="chk3" text="Manufacturing but can be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufaturingAllocated}" />
-                                                <CheckBox id="chk4" text="Manufacturing and cannot be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufacturingNotAllocated}" />
-                                                <CheckBox id="chk5" text="Standard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/StandardAndPromised}" />
-                                                <CheckBox id="chk6" text="Nonstandard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndPromised}" />
-                                                <CheckBox id="chk7" text="Nonstandard product and cannot be promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndNotPromised}" />
+                                                <CheckBox id="chkNotPlannedOrManufatured" text="Not planned nor manufactured" select="onOrderProgressSelect" selected="{formDetails>/NotPlannedOrManufatured}" />
+                                                <CheckBox id="chkOrderProgressSelect" text="Planned but not yet manufactured" select="onOrderProgressSelect" selected="{formDetails>/PlannedNotManufatured}" />
+                                                <CheckBox id="chkPlannedNotManufatured" text="Manufacturing but can be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufaturingAllocated}" />
+                                                <CheckBox id="chkManufacturingNotAllocated" text="Manufacturing and cannot be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufacturingNotAllocated}" />
+                                                <CheckBox id="chkStandardAndPromised" text="Standard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/StandardAndPromised}" />
+                                                <CheckBox id="chkNonstandardAndPromised" text="Nonstandard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndPromised}" />
+                                                <CheckBox id="chkNonstandardAndNotPromised" text="Nonstandard product and cannot be promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndNotPromised}" />
                                             </VBox>
                                     </form:content>
                                 </form:SimpleForm>

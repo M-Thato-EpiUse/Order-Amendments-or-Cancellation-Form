@@ -27,6 +27,33 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			this._setInputElements();
         },
 
+		onAmendmentSelect: function () {
+			const oChkCancellation = this.byId("chkCancellation");
+			const oTblChangeFrom = this.byId("tblChangeFrom");
+			const oTblChangeTo = this.byId("tblChangeTo");
+			
+			oChkCancellation.setSelected(false);
+			oTblChangeFrom.setHeaderText("Change From");
+			oTblChangeTo.setVisible(true);
+		},
+
+		onCancellationSelect: function (oEvent) {
+			const oChkCancellation = oEvent.getSource();
+			const oChkAmendment = this.byId("chkAmendment");
+			const bIsSelected = oChkCancellation.getSelected();
+			const oTblChangeFrom = this.byId("tblChangeFrom");
+			const oTblChangeTo = this.byId("tblChangeTo");
+			oChkAmendment.setSelected(false);
+
+			if (bIsSelected) {
+				oTblChangeFrom.setHeaderText("Cancellation");
+				oTblChangeTo.setVisible(false);
+			} else {
+				oTblChangeFrom.setHeaderText("Change From");
+				oTblChangeTo.setVisible(true);
+			}
+		},
+
 		/* =========================================================== */
 		/* Global Helper Functions                                     */
 		/* =========================================================== */
@@ -62,12 +89,39 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		},
 
 		_clearTableValues: function () {
+			// Request Info (left)
+			this.byId("inCustomerName").setValue("");
+			this.byId("inBranchName").setValue("");
+			this.byId("dtpPoDate").setValue("");
+
+			// Request Info (right)
+			this.byId("inContractNo").setValue("");
+			this.byId("inSalesOrderNo").setValue("");
+			this.byId("chkAmendment").setSelected(false);
+			this.byId("chkCancellation").setSelected(false);
+
+			// Reason of Amendments
+			this.byId("txtaReasonOfAmendments").setValue("");
+
+			// Order Progress
+			this.byId("chkNotPlannedOrManufatured").setSelected(false);
+			this.byId("chkOrderProgressSelect").setSelected(false);
+			this.byId("chkPlannedNotManufatured").setSelected(false);
+			this.byId("chkManufacturingNotAllocated").setSelected(false);
+			this.byId("chkStandardAndPromised").setSelected(false);
+			this.byId("chkNonstandardAndPromised").setSelected(false);
+			this.byId("chkNonstandardAndNotPromised").setSelected(false);
+
 			// Change To Table
 			this.byId("inUniqueCode").setValue("");
 			this.byId("inQuantity").setValue("");
 			this.byId("inNetPrice").setValue("");
 			this.byId("txtNetValue").setText("R 0.00");
 			this.byId("dtpNewRequestedDate").setValue("");
+
+			// Attachment Upload
+			this.getOwnerComponent().getModel("oModelAttach").setData("");
+			this.getOwnerComponent().getModel("selectedOrderItems").setData("");
 		},
 		// #endregion
 
@@ -127,15 +181,26 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 				// Set the the object to the model used by the form
 				const oContAssessModel = new JSONModel(oContAssess);
 				this.getOwnerComponent().setModel(oContAssessModel, "formDetails");
-			}
+			}  
 		},
 
-        _onEditMatched: function (oEvent) {
-			//Set the layout property of the FCL control to 'OneColumn'
-			this.getModel("appView").setProperty("/layout", "OneColumn");
+        _onEditMatched: function () {
+			this.getOwnerComponent().getModel("appView").setProperty("/layout", "OneColumn");
 
-			// Get the Id for the form from the parameters
-			this.sWi = oEvent.getParameter("arguments").wi;
+			const oFormDataModel = this.getOwnerComponent().getModel("globalFormDataModel")?.getData();
+
+			if (oFormDataModel) {
+				if (oFormDataModel.RequestTypeCancellation) {
+					this.byId("tblChangeTo").setVisible(false); 
+					this.byId("tblChangeFrom").setHeaderText("Cancellation");
+				} else { 
+					this.byId("tblChangeTo").setVisible(true); 
+					this.byId("tblChangeFrom").setHeaderText("Change From");
+				}
+			} else {
+				const oRouter = this.getOwnerComponent().getRouter();
+				oRouter.navTo("master");
+			}
 		},
 
         // Generate unique instance id
@@ -429,10 +494,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		// Function to update the Change To total
 		_updateChangeToTotal: function() {
 			const sTotalAmount = this._calculateChangeToTotal();
-			const oTotalText = this.byId("changeToTotalAmountText");
-
-			console.log("total amount: ", sTotalAmount);
-			
+			const oTotalText = this.byId("changeToTotalAmountText");			
 			if (oTotalText) oTotalText.setText(sTotalAmount || "R0.00");
 		},
 
@@ -453,14 +515,14 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		},
 
 		// Call this after the table is rendered or items are added
-		_onChangeToTableUpdateFinished: function() {
-			this._attachChangeToInputEvents();
-			this._updateChangeToTotal();
+		// _onChangeToTableUpdateFinished: function() {
+		// 	this._attachChangeToInputEvents();
+		// 	this._updateChangeToTotal();
 			
-			// Show the total HBox
-			const oHBox = this.byId("hbxChangeTo");
-			if (oHBox) oHBox.setVisible(true);
-		},
+		// 	// Show the total HBox
+		// 	const oHBox = this.byId("hbxChangeTo");
+		// 	if (oHBox) oHBox.setVisible(true);
+		// },
 
 		_quantityUnitSelectionChange: function (oEvent) {
 			// Get the source ComboBox that triggered the event
@@ -652,7 +714,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		_applyFilter: function (oTable, sBinding, oFilter) {
 		    const oBinding = oTable.getBinding(sBinding);
 		    if (oBinding) {
-				console.log("Applying filter:", oFilter);
 		        oBinding.filter(oFilter);
 		    }
 		},
@@ -906,8 +967,9 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 
 			if (aSelectedData.length > 0) {
 				this.byId("hbxChangeFrom").setVisible(true);
-				this.byId("hbxChangeTo").setVisible(true);
 				this.byId("inSalesOrderNo").setValue(this._sSalesOrderNo);
+
+				if (this.byId("tblChangeTo").getVisible()) this.byId("hbxChangeTo").setVisible(true);
 			}
 
 			this._oSalesOrderDetailsDialog.close();
@@ -949,8 +1011,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			} else {
 				oUploadSet.removeIncompleteItem(oItem);
 				this._setAttachmentModel();
-
-				console.log("attachment model: ", this.getOwnerComponent().getModel("oModelAttach").getData());
 			}
 		},
         // #endregion
@@ -1006,7 +1066,13 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			oFormDetails.RequestedDate = this.byId("txtRequestedDate").getText();
 			oFormDetails.ChangeFromItems = oChangeFromData.extractedItems;
 			oFormDetails.ChangeToItems = oChangeToData.extractedItems;
-			oFormDetails.AttachmentId = this.uuid;			
+			oFormDetails.AttachmentId = this.uuid;		
+			
+			const sRequestTypeAmendment = oFormDetails.RequestTypeAmendment;
+			const sRequestTypeCancellation = oFormDetails.RequestTypeCancellation;
+			const sFormTitle = sRequestTypeAmendment ? "Amendment Request" : sRequestTypeCancellation ? "Cancellation Request" : "";					
+			const sDetailsTitle = sRequestTypeAmendment ? "Amendment Request Form Details" : sRequestTypeCancellation ? "Cancellation Request Form Details" : "";					
+			oFormDetails.Title = sDetailsTitle;			
 
 			// Perform validation
 			const bValid = this._performValidation(oFormDetails);	
@@ -1023,8 +1089,8 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 				});
 
 				// Build the details of the request
-				const oEntity = {
-					Title: "Amendment/Cancellation Form Details",
+				const oFormPayload = {
+					Title: sFormTitle,
 					Process: 'ORDAMD',
 					Wi: sWi,
 					CreateDate: new Date(),
@@ -1033,13 +1099,13 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 					Initiator: "",
 					Payload: sPayload,
 					Refguid: uuid
-				} 				
-
+				} 		
+								
 				// Send the request to create the new form
-				oModel.create("/FormSet", oEntity, {
+				oModel.create("/FormSet", oFormPayload, {
 					success: () => {
 						// Display success message
-						this._clearFormValues()
+						this._clearFormValues();
 						const sMsg = 'Request Created Successfully';
 						MessageToast.show(sMsg);
 						this.oRouter.navTo("master");

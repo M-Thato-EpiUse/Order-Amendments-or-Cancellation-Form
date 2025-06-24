@@ -39,11 +39,7 @@ sap.ui.define([
 						const sPoDate = /^\d{2}\/\d{2}\/\d{4}$/.test(oPayload.PoDate) ? oPayload.PoDate : this._formatDateToDDMMYYYY(new Date(oPayload.PoDate));
 						const sRequestTypeAmendment = oPayload.RequestTypeAmendment;
 						const sRequestTypeCancellation = oPayload.RequestTypeCancellation;
-						const sRequestType =
-							sRequestTypeAmendment && sRequestTypeCancellation ? "Amendment & Cancellation" :
-							sRequestTypeAmendment ? "Amendment" :
-							sRequestTypeCancellation ? "Cancellation" :
-							"";
+						const sRequestType = sRequestTypeAmendment ? "Amendment" : sRequestTypeCancellation ? "Cancellation" : "";							
 						const sOrderProgress = 
 								oPayload.NotPlannedOrManufatured ? "Not planned nor manufactured" :
 								oPayload.PlannedNotManufatured ? "Planned but not yet manufactured" :
@@ -52,10 +48,7 @@ sap.ui.define([
 								oPayload.StandardAndPromised ? "Standard product and is promised to be sold out quickly" :
 								oPayload.NonstandardAndPromised ? "Nonstandard product and is promised to be sold out quickly" :
 								oPayload.NonstandardAndNotPromised ? "Nonstandard product and cannot be promised to be sold out quickly" :
-							"";
-
-						console.log("payload: ", oPayload);
-						
+							"";						
 
 						oPayload?.ChangeToItems?.forEach(item => {
 							const sNewTotalAmount = item.NewTotalAmount;
@@ -63,13 +56,38 @@ sap.ui.define([
 							const sCleanValue = !bIsNumber ? sNewTotalAmount.replace(/[R\s]/g, '').replace(/[^\d.-]/g, '') : sNewTotalAmount;
 							const sNewNetValue = parseFloat(sCleanValue) || 0;
 							item.NewTotalAmount = sNewNetValue;
-							
 						});						
 
 						const oFormPayload = new JSONModel(oPayload);
-						this.getView().setModel(oFormPayload, "formDataModel"); 
+						this.getView().setModel(oFormPayload, "formDataModel"); 	
+						this.getOwnerComponent().setModel(oFormPayload, "globalFormDataModel"); 	
 
-                        this.byId("txtDetailTitle").setText(oFormData.Title || "Amendment/Cancellation Form Details");
+						const formattedChangeFromItems = oPayload.ChangeFromItems.map(item => {
+							return {
+								...item,
+								Price: this._formatCurrency(item.Price),
+								TotalAmount: this._formatCurrency(item.TotalAmount)
+							};
+						});
+						
+						const oChangeFromModel = new JSONModel({ selectedItems: formattedChangeFromItems });
+						this.getOwnerComponent().setModel(oChangeFromModel, "selectedOrderItems");
+
+						const oChangeToModel = new JSONModel({ selectedItems: oPayload.ChangeToItems });
+						this.getOwnerComponent().setModel(oChangeToModel, "changeToItems");		
+						
+						console.log("items: ", oPayload.ChangeFromItems);
+						
+						
+						if (sRequestTypeCancellation) { 
+							this.byId("tbldChangeTo").setVisible(false); 
+							this.byId("tbldChangeFrom").setHeaderText("Cancellation");
+						} else { 
+							this.byId("tbldChangeTo").setVisible(true); 
+							this.byId("tbldChangeFrom").setHeaderText("Change From");
+						}
+
+                        this.byId("txtDetailTitle").setText(oPayload.Title || "Amendment/Cancellation Request Form Details");
 
                         this.byId("oaWorkItem").setText(oFormData.Wi);
                         this.byId("oaCreatedDate").setText(formatter.formatLongDate(oFormData.CreateDate, oFormData.CreateTime));
@@ -82,8 +100,7 @@ sap.ui.define([
                         this.byId("txtdRequstDate").setText(oPayload.RequestedDate);
                         this.byId("txtdContractNumber").setText(oPayload.PoContractNumber);
                         this.byId("txtdSalesOrderNo").setText(oPayload.SalesOrderNumber);
-                        this.byId("txtdAmendment").setText(sRequestType);
-                        this.byId("txtdCancellation").setText(oPayload.RequestTypeCancellation);
+                        this.byId("txtdRequestType").setText(sRequestType);
 
                         this.byId("txtReasonOfAmendments").setText(oPayload.ReasonOfAmendments);
                         this.byId("txtOrderProgress").setText(sOrderProgress);
@@ -102,20 +119,22 @@ sap.ui.define([
 					filters: [new Filter("Refguid", FilterOperator.EQ, sAttachmentId)],
 					success: (oAttachmentData) => {
 						const oAttachmentDetails = oAttachmentData.results[0];
-
-						const item = {
-							Guid: oAttachmentDetails.Guid,
-							FileName: oAttachmentDetails.Filename,
-							MimeType: oAttachmentDetails.Mimetype,
-							Url: `/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet('${oAttachmentDetails.Guid}')/$value`,
-							uploadState: "Complete",
-							CreatedBy: oAttachmentDetails.Createdby,
-							CreatedDate: this._formatDateToDDMMYYYY(oAttachmentDetails.Erdat),
-							selected: false
-						};
-		
-						const oAttachmentModel = new JSONModel({ AttachmentDetails: item });
-						this.getOwnerComponent().setModel(oAttachmentModel, "uploadedAttachmentModel");
+						
+						if (oAttachmentDetails) {
+							const item = {
+								Guid: oAttachmentDetails.Guid,
+								FileName: oAttachmentDetails.Filename,
+								MimeType: oAttachmentDetails.Mimetype,
+								Url: `/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet('${oAttachmentDetails.Guid}')/$value`,
+								uploadState: "Complete",
+								CreatedBy: oAttachmentDetails.Createdby,
+								CreatedDate: this._formatDateToDDMMYYYY(oAttachmentDetails.Erdat),
+								selected: false
+							};
+			
+							const oAttachmentModel = new JSONModel({ AttachmentDetails: item });
+							this.getOwnerComponent().setModel(oAttachmentModel, "uploadedAttachmentModel");
+						}						
 					},
 					error: (oError) => {
 						sap.m.MessageToast.show("Error occurred reading data");
@@ -311,8 +330,7 @@ sap.ui.define([
 				requestedDate: this.byId("txtdRequstDate").getText(),
 				contractNumber: this.byId("txtdContractNumber").getText(),
 				salesOrderNo: this.byId("txtdSalesOrderNo").getText(),
-				amendment: this.byId("txtdAmendment").getText(),
-				cancellation: this.byId("txtdCancellation").getText(),
+				requestType: this.byId("txtdRequestType").getText(),
 				reasonOfAmendments: this.byId("txtReasonOfAmendments").getText(),
 				orderProgress: this.byId("txtOrderProgress").getText()
 			};
@@ -488,13 +506,13 @@ sap.ui.define([
 						</div>
 						<div class="form-row">
 							<span class="form-label">Request Type:</span>
-							<span class="form-value">${data.header.amendment || ''} ${data.header.cancellation || ''}</span>
+							<span class="form-value">${data.header.requestType || ''}</span>
 						</div>
 					</div>
 				</div>
 		
-				${this._buildTableHTML('Change From Items', data.changeFromItems, 'from')}
-				${this._buildTableHTML('Change To Items', data.changeToItems, 'to')}
+				${this._buildTableHTML('Change From', data.changeFromItems, 'from')}
+				${this._buildTableHTML('Change To', data.changeToItems, 'to')}
 		
 				<div class="section-title">Additional Information</div>
 				<div class="form-section">

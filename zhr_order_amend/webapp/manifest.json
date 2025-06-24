@@ -96,15 +96,14 @@
     },
     "routing": {
       "config": {
-  "routerClass": "sap.f.routing.Router",       
-  "viewType": "XML",
-  "async": true,
-  "viewPath": "com.epiuse.zhrorderamend.view",
-  "controlAggregation": "beginColumnPages",   
-  "controlId": "layout",                      
-  "clearControlAggregation": false
-},
-
+      "routerClass": "sap.f.routing.Router",       
+      "viewType": "XML",
+      "async": true,
+      "viewPath": "com.epiuse.zhrorderamend.view",
+      "controlAggregation": "beginColumnPages",   
+      "controlId": "layout",                      
+      "clearControlAggregation": false
+    },
       "routes": [
         {
           "pattern": "",
