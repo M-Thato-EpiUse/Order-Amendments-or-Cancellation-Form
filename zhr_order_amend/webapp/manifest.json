@@ -131,7 +131,7 @@
 
         {
 					"name": "edit",
-					"pattern": "edit/{wi}",
+					"pattern": "edit/{workItemId}",
 					"target": [
 						"create"
 					]

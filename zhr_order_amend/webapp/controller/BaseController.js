@@ -72,7 +72,7 @@ sap.ui.define([
 					filters: [new Filter("Refguid", FilterOperator.EQ, this.uuid)],
 					success: function (oData) {
 						var json = new JSONModel([]);
-						json.items = [];
+						json.items = [];						
 
 						for (var i = 0; i < oData.results.length; i++) {
 							var item = {
@@ -140,6 +140,8 @@ sap.ui.define([
 			this.getOwnerComponent().setModel(oMotGenReq, "formDetails");
 		},
 
+
+
 		_formatCurrency: function (value) {
 			if (!value || isNaN(value)) return "";
 			
@@ -154,15 +156,75 @@ sap.ui.define([
 			return 'R ' + formatter.format(parseFloat(value));
 		},
 
+		_formatToTwoDecimals: function (sValue) {
+			if (!sValue || isNaN(sValue)) {
+				return "";
+			}
+			return parseFloat(sValue).toFixed(2);
+		},
+
+		_formatPriceWithUnit: function (sPrice, sUnit) {
+			if (!sPrice) return "";
+			const sFormatted = this._formatCurrency(sPrice); 
+			return sFormatted + " " + (sUnit || "");
+		},
+
+		_formatQuantityWithUnit: function (sQuantity, sUnit) {
+			if (!sQuantity) return "";
+			const sFormatted = this._formatToTwoDecimals(sQuantity); 
+			return sFormatted + " " + (sUnit || "");
+		},
+
+
+		_formatDateToDDMMYYYY: function (vInput) {
+			// If it's already in dd/mm/yyyy format, return as-is
+			const ddMmYyyyRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+			if (typeof vInput === "string" && ddMmYyyyRegex.test(vInput)) {
+				return vInput;
+			}
+		
+			let oDate;
+		
+			if (vInput instanceof Date) {
+				oDate = vInput;
+			} else if (typeof vInput === "string") {
+				oDate = new Date(vInput);
+		
+				// Try to parse dd/mm/yyyy manually if default Date parsing failed
+				if (isNaN(oDate)) {
+					const aParts = vInput.split("/");
+					if (aParts.length === 3) {
+						const [dd, mm, yyyy] = aParts;
+						oDate = new Date(`${yyyy}-${mm}-${dd}`);
+					}
+				}
+			}
+		
+			if (!(oDate instanceof Date) || isNaN(oDate)) {
+				return "";
+			}
+		
+			const sDay = String(oDate.getDate()).padStart(2, "0");
+			const sMonth = String(oDate.getMonth() + 1).padStart(2, "0");
+			const sYear = oDate.getFullYear();
+		
+			return `${sDay}/${sMonth}/${sYear}`;
+		},
+		
+		
+
+
+
+
 		check: function () {
 			const oModel = this.getOwnerComponent().getModel();
 			
-			oModel.read("/FormSet", {
+			oModel.read("/AttachmentSet", {
 				urlParameter: {
-					"$filter": "Process eq 'ORDAMD'"
+					"$top": 1
 				},
 				success: (oData) => {
-					console.log("form data: ", oData);
+					console.log("attachment data: ", oData);
 					
 				}
 			})

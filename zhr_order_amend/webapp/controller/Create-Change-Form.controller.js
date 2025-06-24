@@ -30,7 +30,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Global Helper Functions                                     */
 		/* =========================================================== */
-
 		// #region Format Functions
 		_unformatCurrency: function (formattedValue) {
 			if (!formattedValue) return "";
@@ -67,7 +66,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			this.byId("inUniqueCode").setValue("");
 			this.byId("inQuantity").setValue("");
 			this.byId("inNetPrice").setValue("");
-			this.byId("inNetValue").setValue("");
+			this.byId("txtNetValue").setText("R 0.00");
 			this.byId("dtpNewRequestedDate").setValue("");
 		},
 		// #endregion
@@ -75,7 +74,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Initialization                                              */
 		/* =========================================================== */
-
         // #region Initialisation
         _setModel:function () {
             const oModel = new JSONModel({
@@ -173,7 +171,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Validation                                                  */
 		/* =========================================================== */
-
         // #region _performValidation
         _performValidation: function () {
 			// Clear existing messages
@@ -211,7 +208,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Control Actions                                             */
 		/* =========================================================== */
-
 		// #region onNavBack
 		onNavBack: function () {
 			var oBundle = this.getOwnerComponent().getModel("i18n").getResourceBundle();
@@ -280,7 +276,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Change To/From Tables                                       */
 		/* =========================================================== */
-
         // #region onAddItem
         onAddItem: function () {
             const oModel = this.getView().getModel();
@@ -421,8 +416,8 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 				const aCells = oItem.getCells();
 				// The Total Amount input is the 5th cell (index 4)
 				const oTotalAmountInput = aCells[4];
-				if (oTotalAmountInput && oTotalAmountInput.getValue) {
-					const sValue = oTotalAmountInput.getValue();
+				if (oTotalAmountInput && oTotalAmountInput.getText) {
+					const sValue = oTotalAmountInput.getText();
 					const fValue = parseFloat(sValue) || 0;
 					fTotal += fValue;
 				}
@@ -435,7 +430,10 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		_updateChangeToTotal: function() {
 			const sTotalAmount = this._calculateChangeToTotal();
 			const oTotalText = this.byId("changeToTotalAmountText");
-			if (oTotalText) oTotalText.setText(sTotalAmount);
+
+			console.log("total amount: ", sTotalAmount);
+			
+			if (oTotalText) oTotalText.setText(sTotalAmount || "R0.00");
 		},
 
 		// Function to handle input changes in the Change To table
@@ -463,12 +461,99 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			const oHBox = this.byId("hbxChangeTo");
 			if (oHBox) oHBox.setVisible(true);
 		},
+
+		_quantityUnitSelectionChange: function (oEvent) {
+			// Get the source ComboBox that triggered the event
+			const oComboBox = oEvent.getSource();
+			const sSelectedKey = oComboBox.getSelectedKey();
+			
+			// Navigate up to get the current row (ColumnListItem)
+			const oItem = oComboBox.getParent().getParent(); // HBox -> ColumnListItem
+			const aCells = oItem.getCells();
+			
+			// Get the HBox in column 3 (index 3) that contains txtNetPriceUnit
+			const oNetPriceHBox = aCells[3];
+			if (oNetPriceHBox) {
+				// txtNetPriceUnit is the second item in the HBox (index 1)
+				const oNetPriceUnitText = oNetPriceHBox.getItems()[1];
+				if (oNetPriceUnitText && oNetPriceUnitText.setText) {
+					// Set the text based on selected unit
+					if (sSelectedKey === "M") {
+						oNetPriceUnitText.setText("R/M");
+					} else if (sSelectedKey === "KG") {
+						oNetPriceUnitText.setText("R/KG");
+					}
+				}
+			}
+		},
+
+		_calculateRowTotal: function (oEvent) {
+			// Get the source of the event to find the current row
+			const oSource = oEvent.getSource();
+			const oItem = oSource.getParent().getParent(); // Navigate up to get the ColumnListItem
+			const aCells = oItem.getCells();
+			
+			// Get quantity from the HBox in column 2 (index 2)
+			const oQuantityHBox = aCells[2];
+			let fQuantity = 0;
+			if (oQuantityHBox) {
+				const oQuantityInput = oQuantityHBox.getItems()[0]; // Input is first item in HBox
+				if (oQuantityInput && oQuantityInput.getValue) {
+					const sQuantityValue = oQuantityInput.getValue();
+					fQuantity = parseFloat(sQuantityValue) || 0;
+				}
+			}
+			
+			// Get net price from the HBox in column 3 (index 3)
+			const oNetPriceHBox = aCells[3];
+			let fNetPrice = 0;
+			if (oNetPriceHBox) {
+				const oNetPriceInput = oNetPriceHBox.getItems()[0]; // Input is first item in HBox
+				if (oNetPriceInput && oNetPriceInput.getValue) {
+					const sNetPriceValue = oNetPriceInput.getValue();
+					fNetPrice = parseFloat(sNetPriceValue) || 0;
+				}
+			}
+			
+			// Calculate line total (quantity * net price) and update the Total Amount display
+			const fLineTotal = fQuantity * fNetPrice;
+			const oTotalAmountText = aCells[4]; // txtNetValue in column 4
+			if (oTotalAmountText && oTotalAmountText.setText) {
+				oTotalAmountText.setText(this._formatCurrency(fLineTotal.toFixed(2)));
+			}
+
+			this.calculateGrandTotal();
+		},
+
+		calculateGrandTotal: function () {
+			const oTable = this.byId("tblChangeTo");
+			const aItems = oTable.getItems();
+			let fGrandTotal = 0;
+			
+			aItems.forEach(function(oItem) {
+				const aCells = oItem.getCells();
+				// The Total Amount text is in column 4 (index 4)
+				const oTotalAmountText = aCells[4];
+				
+				if (oTotalAmountText && oTotalAmountText.getText) {
+					const sValue = oTotalAmountText.getText();
+					const sCleanValue = sValue.replace(/[R\s]/g, '').replace(/[^\d.-]/g, '');
+					const fValue = parseFloat(sCleanValue) || 0;
+					fGrandTotal += fValue;
+				}
+			});
+			
+			// Update the title control with the grand total
+			const oTitleControl = this.byId("changeToTotalAmountText");
+			if (oTitleControl && oTitleControl.setText) {
+				oTitleControl.setText(this._formatCurrency(fGrandTotal.toFixed(2)));
+			}
+		},
 		// #endregion
 
 		/* =========================================================== */
 		/* Sales Orders Value Help                                     */
 		/* =========================================================== */
-
 		// #region Sales Orders VH
 		onOrderSearchVH: function () {
 			this._oBasicSearchField = new SearchField();
@@ -576,7 +661,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Orders Dialog Helpers                                       */
 		/* =========================================================== */
-
 		// #region Orders Dialog Helpers
 		_loadAccountsTable: function (oDialog) {
 			oDialog.getTableAsync().then((oTable) => {
@@ -688,7 +772,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Sales Order Items Value Help                                */
 		/* =========================================================== */
-
 		// #region Order Items VH
 		_openSalesOrderDetailDialog: function (sSalesDocId) {
 			const oModel = this.getOwnerComponent().getModel();
@@ -835,7 +918,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Attachment Upload                                           */
 		/* =========================================================== */
-
         // #region onBeforeUploadStarts
         onBeforeUploadStarts: function (oEvent) {
 			const oHeaderItem = oEvent.getParameter("item");
@@ -867,6 +949,8 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			} else {
 				oUploadSet.removeIncompleteItem(oItem);
 				this._setAttachmentModel();
+
+				console.log("attachment model: ", this.getOwnerComponent().getModel("oModelAttach").getData());
 			}
 		},
         // #endregion
@@ -901,7 +985,6 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* =========================================================== */
 		/* Form Submit                                                 */
 		/* =========================================================== */
-
         // #region onFormSubmit
         onFormSubmit: function () {
 			this._ExtractChangeFromData();
@@ -923,9 +1006,10 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			oFormDetails.RequestedDate = this.byId("txtRequestedDate").getText();
 			oFormDetails.ChangeFromItems = oChangeFromData.extractedItems;
 			oFormDetails.ChangeToItems = oChangeToData.extractedItems;
+			oFormDetails.AttachmentId = this.uuid;			
 
 			// Perform validation
-			const bValid = this._performValidation(oFormDetails);
+			const bValid = this._performValidation(oFormDetails);	
 			
 			// Submit the request
 			if (bValid) {
@@ -979,7 +1063,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 				if (aCells.length >= 6) {
 					const sItem = aCells[0].getText(); // Line Item No.
 					const sUniqueCode = aCells[1].getText(); // Unique Code
-					const sQuantity = aCells[2].getText(); // Quantity
+					const sQuantity = this._formatToTwoDecimals(aCells[2].getText()); // Quantity
 		
 					// Revert formatted price and total back to raw numbers
 					const sFormattedPrice = aCells[3].getText();
@@ -1028,18 +1112,20 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 					const oQtyHBox = aCells[2];
 					const oQuantityInput = oQtyHBox.getItems()[0];
 					const oQuantityUnitCombo = oQtyHBox.getItems()[1];
-					const sNewQuantity = oQuantityInput.getValue();
+					const sNewQuantity = this._formatToTwoDecimals(oQuantityInput.getValue());
 					const sNewQuantityUnit = oQuantityUnitCombo.getSelectedKey();
 		
 					// Cell 3: New Price (HBox with Input + ComboBox)
 					const oPriceHBox = aCells[3];
 					const oPriceInput = oPriceHBox.getItems()[0];
-					const oPriceUnitCombo = oPriceHBox.getItems()[1];
+					const oPriceUnitText = oPriceHBox.getItems()[1];
 					const sNewPrice = oPriceInput.getValue();
-					const sNewPriceUnit = oPriceUnitCombo.getSelectedKey();
+					const sNewPriceUnit = oPriceUnitText.getText();
 		
 					// Cell 4: Total Amount (Input)
-					const sNewTotalAmount = aCells[4].getValue();
+					const sNewTotalAmount = aCells[4].getText();
+					const sCleanValue = sNewTotalAmount.replace(/[R\s]/g, '').replace(/[^\d.-]/g, '');
+					const sNetValue = parseFloat(sCleanValue) || 0;
 		
 					// Cell 5: Requested Date (DatePicker)
 					const oDatePicker = aCells[5];
@@ -1053,7 +1139,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 						NewQuantityUnit: sNewQuantityUnit,
 						NewPrice: sNewPrice,
 						NewPriceUnit: sNewPriceUnit,
-						NewTotalAmount: sNewTotalAmount,
+						NewTotalAmount: sNetValue,
 						NewRequestedDate: sNewRequestedDate,
 					});
 				}

@@ -28,7 +28,7 @@
 			
 			<VBox>
                 <!-- Filled by the sales (Input by Initiator) -->
-                <HBox class="sapUiSmallMarginTop" width="100%" justifyContent="Center">
+                <HBox width="100%" justifyContent="Center">
                     <HBox class="roundedBorderRadius whiteBackground sapUiResponsiveContentPadding" width="100%" justifyContent="SpaceAround">
                         <HBox width="100%" justifyContent="Center">
                             <VBox width="50%">
@@ -98,160 +98,136 @@
                     <HBox width="100%" justifyContent="SpaceAround">
                         <VBox width="100%" alignItems="Center" justifyContent="Center">
                             <VBox class="sapUiSmallMarginBottom" width="90%">
-                                <Table class="customHeaderHeight" headerText="Change From" inset="false" items="{changeFromPayload>/}">
+                                <Table class="customHeaderHeight" headerText="Change From" inset="false" autoPopinMode="true" alternateRowColors="true" items="{formDataModel>/ChangeFromItems}">
                                     <columns>
-                                        <Column>
+                                        <Column width="15em" importance="Low">
                                             <Text text="Line Item No." />
                                         </Column>
-                                        <Column importance="Low" demandPopin="true">
+                                        <Column width="15em" importance="Low">
                                             <Text text="Unique Code" />
                                         </Column>
-                                        <Column>
+                                        <Column width="10em" importance="High">
                                             <Text text="Quantity" />
                                         </Column>
-                                        <Column>
-                                            <Text/>
+                                        <Column width="10em" importance="High">
+                                            <Text text="Price" />
                                         </Column>
-                                        <Column>
+                                        <Column width="10em" importance="High">
                                             <Text text="Total Amount (R)" />
                                         </Column>
-                                        <Column>
-                                            <Text text="Previous Customer Requested Delivery Date" />
+                                        <Column width="15em" importance="Low">
+                                            <Text text="Previous Requested Date" />
                                         </Column>
                                     </columns>
 
                                     <items>
                                         <ColumnListItem>
                                             <cells>        
-                                                <Text text="{changeFromPayload>Item}" />
-                                                <Text text="{changeFromPayload>UniqueCode}" />
-                                                <Text text="{changeFromPayload>Quantity}" />
+                                                <Text text="{formDataModel>Item}" />
+                                                <Text text="{formDataModel>UniqueCode}" />
                                                 <Text text="{
-                                                    path: 'changeFromPayload>Price',
+                                                    path: 'formDataModel>Quantity',
+                                                    formatter: '._formatToTwoDecimals'
+                                                }" />
+                                                <Text text="{
+                                                    path: 'formDataModel>Price',
                                                     formatter: '._formatCurrency'
                                                 }" />
                                                 <Text text="{
-                                                    path: 'changeFromPayload>TotalAmount',
+                                                    path: 'formDataModel>TotalAmount',
                                                     formatter: '._formatCurrency'
                                                 }" />
-                                                <Text text="{changeFromPayload>RequestedDate}" />
+                                                <Text text="{
+                                                    path: 'formDataModel>RequestedDate',
+                                                    formatter: '._formatDateToDDMMYYYY'
+                                                }" />
                                             </cells>
                                         </ColumnListItem>
                                     </items>
                                 </Table>
                             </VBox>
 
-                            <VBox width="90%">
-                                <!-- <Table class="customHeaderHeight" headerText="Change To" inset="false" items="{selectedOrderItems>/selectedItems}" >
+                            <VBox class="sapUiSmallMarginTop" width="90%">
+                                <Table class="customHeaderHeight" headerText="Change To" inset="false" autoPopinMode="true" alternateRowColors="true" items="{formDataModel>/ChangeToItems}" >
                                     <columns>
-                                        <Column width="8em">
+                                        <Column width="15em" importance="Low">
                                             <Text text="Line Item No." />
                                         </Column>
-                                        <Column width="12em">
+                                        <Column width="15em" importance="Low">
                                             <Text text="Unique Code" />
                                         </Column>
-                                        <Column>
+                                        <Column width="10em" importance="High">
                                             <Text text="New Quantity" />
                                         </Column>
-                                        <Column>
+                                        <Column width="10em" importance="High">
                                             <Text text="New Price" />
                                         </Column>
-                                        <Column width="10em">
+                                        <Column width="10em" importance="High">
                                             <Text text="Total Amount (R)" />
                                         </Column>
-                                        <Column width="15em">
-                                            <Text text="New Customer Requested Delivery Date" />
+                                        <Column width="15em" importance="Low">
+                                            <Text text="New Requested Date" />
                                         </Column>
-                                        <Column width="50px"/>
                                     </columns>
 
                                     <items>
                                         <ColumnListItem>
-                                            <cells>       
-                                                <Text text="{selectedOrderItems>Item}" />
-                                                <Input value="" />
-
-                                                <HBox>
-                                                    <Input type="Number" value="" />
-                                                    <ComboBox selectedKey="" width="80px">
-                                                        <core:Item key="M" text="M" />
-                                                        <core:Item key="KG" text="KG" />
-                                                    </ComboBox>
-                                                </HBox>
-
-                                                <HBox>
-                                                    <Input type="Number" value="" />
-                                                    <ComboBox selectedKey="" width="80px" >
-                                                        <core:Item key="R/M" text="R/M" />
-                                                        <core:Item key="R/KG" text="R/KG" />
-                                                    </ComboBox>
-                                                </HBox>
-
-                                                <Input type="Number" value="" change="._onTotalAmountInputChange" />
-                                                <DatePicker placeholder="Enter Date" value=""/>
-                                                <Button icon="sap-icon://delete" press="onDeleteItem" />
+                                            <cells>        
+                                                <Text text="{formDataModel>Item}" />
+                                                <Text text="{formDataModel>NewUniqueCode}" />
+                                                <Text text="{
+                                                    parts: [
+                                                        { path: 'formDataModel>NewQuantity' },
+                                                        { path: 'formDataModel>NewQuantityUnit' }
+                                                    ],
+                                                    formatter: '._formatQuantityWithUnit'
+                                                }" />
+                                                <Text text="{
+                                                    parts: [
+                                                        { path: 'formDataModel>NewPrice' },
+                                                        { path: 'formDataModel>NewPriceUnit' }
+                                                    ],
+                                                    formatter: '._formatPriceWithUnit'
+                                                }" />
+                                                <Text text="{
+                                                    path: 'formDataModel>NewTotalAmount',
+                                                    formatter: '._formatCurrency'
+                                                }" />
+                                                <Text text="{
+                                                    path: 'formDataModel>NewRequestedDate',
+                                                    formatter: '._formatDateToDDMMYYYY'
+                                                }" />
                                             </cells>
                                         </ColumnListItem>
                                     </items>
-                                </Table> -->
+                                </Table>
                             </VBox>
                         </VBox>
                     </HBox>
                 </HBox>
 
-                <!-- Reason of Amendments -->
+                <!-- Reason of Amendments & Order Progress -->
                 <HBox class="sapUiSmallMarginTop" width="100%" justifyContent="Center">
-                    <HBox width="90%" justifyContent="SpaceAround">
+                    <HBox class="sapUiSmallMarginTop" width="90%" justifyContent="SpaceAround">
                         <HBox width="100%" justifyContent="Start">
                             <VBox width="100%">
                                 <form:SimpleForm
                                     layout="ResponsiveGridLayout"
                                     editable="true"
                                     adjustLabelSpan="false"
-                                    labelSpanXL="2"
-                                    labelSpanL="2"
-                                    labelSpanM="2"
+                                    labelSpanXL="4"
+                                    labelSpanL="4"
+                                    labelSpanM="4"
                                     labelSpanS="12"
                                     columnsXL="1"
                                     columnsL="1"
                                     columnsM="1">
                                     <form:content>
                                         <Label text="Reason of Amendments" />
-                                        <TextArea value="{formDetails>/ReasonOfAmendments}" showExceededText="true" maxLength="2000" width="100%" height="100px" liveChange="handleLiveChange" valueLiveUpdate="true" />
-                                    </form:content>
-                                </form:SimpleForm>
-                            </VBox>
-                        </HBox>
-                    </HBox>
-                </HBox>
+                                        <Text id="txtReasonOfAmendments" wrapping="true" />
 
-                <!-- Order Progress -->
-                <HBox class="sapUiSmallMarginTop" width="100%" justifyContent="Center">
-                    <HBox width="90%" justifyContent="SpaceAround">
-                        <HBox width="100%" justifyContent="Start">
-                            <VBox width="100%">
-                                <form:SimpleForm
-                                    layout="ResponsiveGridLayout"
-                                    editable="true"
-                                    adjustLabelSpan="false"
-                                    labelSpanXL="2"
-                                    labelSpanL="2"
-                                    labelSpanM="2"
-                                    labelSpanS="12"
-                                    columnsXL="1"
-                                    columnsL="1"
-                                    columnsM="1">
-                                    <form:content>
                                         <Label text="Order Progress" />
-                                            <VBox>
-                                                <CheckBox text="Not planned nor manufactured" select="onOrderProgressSelect" selected="{formDetails>/NotPlannedOrManufatured}" />
-                                                <CheckBox text="Planned but not yet manufactured" select="onOrderProgressSelect" selected="{formDetails>/PlannedNotManufatured}" />
-                                                <CheckBox text="Manufacturing but can be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufaturingAllocated}" />
-                                                <CheckBox text="Manufacturing and cannot be allocated to other orders" select="onOrderProgressSelect" selected="{formDetails>/ManufacturingNotAllocated}" />
-                                                <CheckBox text="Standard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/StandardAndPromised}" />
-                                                <CheckBox text="Nonstandard product and is promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndPromised}" />
-                                                <CheckBox text="Nonstandard product and cannot be promised to be sold out quickly" select="onOrderProgressSelect" selected="{formDetails>/NonstandardAndNotPromised}" />
-                                            </VBox>
+                                        <Text id="txtOrderProgress" wrapping="true" />
                                     </form:content>
                                 </form:SimpleForm>
                             </VBox>
@@ -261,7 +237,7 @@
 
                 <!-- Plant Confirmation -->
                 <HBox class="sapUiSmallMarginTop sapUiSmallMarginBottom" width="100%" justifyContent="Center">
-                    <HBox width="90%" justifyContent="SpaceAround">
+                    <HBox class="sapUiSmallMarginTop" width="90%" justifyContent="SpaceAround">
                         <HBox width="100%" justifyContent="Start">
                             <VBox width="100%">
                                 <form:SimpleForm
@@ -277,15 +253,21 @@
                                     columnsM="1">
                                     <form:content>
                                         <VBox>
-                                            <Label text="Plant confirmation (Written email attached to this application form can be counted as the confirmation from plant): Yes" />
+                                            <Label wrapping="true" text="Plant confirmation (Written email attached to this application form can be counted as the confirmation from plant): Yes" />
 
-                                            <upload:UploadSet showIcons="true" uploadEnabled="true" terminationEnabled="true"
-                                                uploadUrl="/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet" instantUpload="true" items="{path: 'oModelAttach>/items' }"
-                                                beforeUploadStarts="onBeforeUploadStarts" uploadCompleted="onUploadComplete" maxFileSize="5">
+                                            <upload:UploadSet 
+                                                            showIcons="false" 
+                                                            uploadEnabled="false" 
+                                                            terminationEnabled="false"
+                                                            items="{path: 'uploadedAttachmentModel>/'}">
                                                 <upload:items>
-                                                    <upload:UploadSetItem fileName="{oModelAttach>fileName}" visibleRemove="true" removePressed="onRemovePressed">
+                                                    <upload:UploadSetItem fileName="{uploadedAttachmentModel>FileName}" 
+                                                                        visibleRemove="false" 
+                                                                        url="{uploadedAttachmentModel>Url}">
                                                         <upload:attributes>
-                                                            <ObjectAttribute title="File Description" text="{oModelAttach>fileName}"/>
+                                                            <ObjectAttribute title="File Description" text="{uploadedAttachmentModel>FileName}"/>
+                                                            <ObjectAttribute title="Created By" text="{uploadedAttachmentModel>CreatedBy}"/>
+                                                            <ObjectAttribute title="Created Date" text="{uploadedAttachmentModel>CreatedDate}"/>
                                                         </upload:attributes>
                                                     </upload:UploadSetItem>
                                                 </upload:items>
@@ -316,10 +298,10 @@
 		</semantic:exitFullScreenAction>
 		
 		<semantic:footerCustomActions>
-			<Button text="{i18n>xbutAck}" icon="sap-icon://activity-2" visible="{CanAck}" press=".onAcknowledge"/>
+			<!-- <Button text="{i18n>xbutAck}" icon="sap-icon://activity-2" visible="{CanAck}" press=".onAcknowledge"/> -->
 			<Button text="{i18n>xbutResub}" icon="sap-icon://redo" visible="{CanResub}" press=".onResubmit"/>
 			<Button text="{i18n>xbutEdit}" icon="sap-icon://edit" visible="{CanEdit}" press=".onEdit"/>
-			<Button text="{i18n>xbutPDF}" icon="sap-icon://pdf-attachment" press=".onPrintPDF"/>
+			<Button text="{i18n>xbutPDF}" icon="sap-icon://pdf-attachment" press=".onExportPDF"/>
 		</semantic:footerCustomActions>
 		
 	</semantic:SemanticPage>

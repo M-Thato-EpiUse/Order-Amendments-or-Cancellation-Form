@@ -65,7 +65,7 @@ sap.ui.define([], function () {
 				var month = String(dDate.getMonth() + 1).padStart(2, '0'); // Get the month (0-11) and pad it with a leading zero if necessary
 				var day = String(dDate.getDate()).padStart(2, '0'); // Get the day of the month and pad it with a leading zero if necessary
 	
-				var formattedDate = `${year}-${month}-${day}`; // Concatenate the year, month, and day with hyphens
+				var formattedDate = `${day}/${month}/${year}`; // Concatenate the year, month, and day with hyphens
 	
 				// Format time
 				const time = new Date(tTime.ms); // Create a new Date object with the current date and time
@@ -175,6 +175,9 @@ sap.ui.define([], function () {
 		  const formattedDate = date.toLocaleString('en-US', options);
 		
 		  return formattedDate;
-		}
+		},
+
+		
+		
 	};
 });

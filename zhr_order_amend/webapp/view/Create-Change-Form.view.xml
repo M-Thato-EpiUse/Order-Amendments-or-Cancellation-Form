@@ -56,7 +56,12 @@
                                         <Input width="300px" value="{formDetails>/BranchOrSectorName}" />
 
                                         <Label text="PO Date" />
-                                        <DatePicker width="300px" placeholder="Enter Date" value="{formDetails>/PoDate}" />
+                                        <DatePicker
+                                            width="300px"
+                                            placeholder="Enter Date"
+                                            value="{formDetails>/PoDate}"
+                                            displayFormat="dd/MM/yyyy"
+                                            valueFormat="dd/MM/yyyy" />
                                     </form:content>
                                 </form:SimpleForm>
                             </VBox>
@@ -137,7 +142,12 @@
                                                     path: 'selectedOrderItems>NetValue',
                                                     formatter: '._formatCurrency'
                                                 }" />
-                                                <DatePicker id="dtpOldRequestedDate" placeholder="Enter Date" />
+                                                <DatePicker
+                                                    id="dtpOldRequestedDate"
+                                                    placeholder="Enter Date"
+                                                    displayFormat="dd/MM/yyyy"
+                                                    valueFormat="dd/MM/yyyy" />
+
                                                 <Button icon="sap-icon://delete" press="onDeleteItem" />
                                             </cells>
                                         </ColumnListItem>
@@ -185,26 +195,28 @@
                                         <ColumnListItem>
                                             <cells>       
                                                 <Text text="{selectedOrderItems>Item}" />
-                                                <Input id="inUniqueCode" value="" />
+                                                <Input id="inUniqueCode" />
 
                                                 <HBox>
-                                                    <Input id="inQuantity" type="Number" value="" />
-                                                    <ComboBox id="cmbQuantityUnit" selectedKey="" width="80px">
+                                                    <Input id="inQuantity" type="Number" change="._calculateRowTotal" />
+                                                    <ComboBox id="cmbQuantityUnit" width="80px" selectionChange="._quantityUnitSelectionChange">
                                                         <core:Item key="M" text="M" />
                                                         <core:Item key="KG" text="KG" />
                                                     </ComboBox>
                                                 </HBox>
 
                                                 <HBox>
-                                                    <Input id="inNetPrice" type="Number" value="" />
-                                                    <ComboBox id="cmbPriceUnit" selectedKey="" width="80px" >
-                                                        <core:Item key="R/M" text="R/M" />
-                                                        <core:Item key="R/KG" text="R/KG" />
-                                                    </ComboBox>
+                                                    <Input id="inNetPrice" type="Number" change="._calculateRowTotal" />
+                                                    <Text id="txtNetPriceUnit" class="sapUiTinyMarginBegin sapUiTinyMarginTop" width="80px"/>
                                                 </HBox>
 
-                                                <Input id="inNetValue" type="Number" value="" change="._onTotalAmountInputChange" />
-                                                <DatePicker id="dtpNewRequestedDate" placeholder="Enter Date" value=""/>
+                                                <Text id="txtNetValue" text="R 0.00"/>
+
+                                                <DatePicker
+                                                    id="dtpNewRequestedDate"
+                                                    placeholder="Enter Date"
+                                                    displayFormat="dd/MM/yyyy"
+                                                    valueFormat="dd/MM/yyyy" />
                                                 <Button icon="sap-icon://delete" press="onDeleteItem" />
                                             </cells>
                                         </ColumnListItem>
