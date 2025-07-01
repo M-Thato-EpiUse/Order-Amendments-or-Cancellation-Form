@@ -70,27 +70,28 @@ sap.ui.define([
 			if (this.uuid) {
 				this.getOwnerComponent().getModel().read("/AttachmentSet", {
 					filters: [new Filter("Refguid", FilterOperator.EQ, this.uuid)],
-					success: function (oData) {
-						var json = new JSONModel([]);
-						json.items = [];						
-
-						for (var i = 0; i < oData.results.length; i++) {
-							var item = {
-								Guid: oData.results[i].Guid,
-								fileName: oData.results[i].Filename,
-								meddiaType: oData.results[i].Mimetype,
-								url: "/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet('" + oData.results[i].Guid + "')/$value",
+					success: (oAttachmentData) => {
+						const oAttachmentDetails = oAttachmentData.results[0];
+						
+						if (oAttachmentDetails) {
+							const item = {
+								Guid: oAttachmentDetails.Guid,
+								FileName: oAttachmentDetails.Filename,
+								MimeType: oAttachmentDetails.Mimetype,
+								Url: `/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet('${oAttachmentDetails.Guid}')/$value`,
 								uploadState: "Complete",
-								CreatedBy: oData.results[i].CreatedBy,
-								Erdat: oData.results[i].Erdat,
+								CreatedBy: oAttachmentDetails.Createdby,
+								CreatedDate: this._formatDateToDDMMYYYY(oAttachmentDetails.Erdat),
 								selected: false
 							};
-							json.items.push(item);
-						}
-						this.getView().getModel("oModelAttach").setData(json);
-					}.bind(this),
-					error: function (oError) {
-						sap.m.MessageToast.show("Error occured reading data");
+			
+							const oAttachmentModel = new JSONModel({ AttachmentDetails: item });
+							this.getOwnerComponent().setModel(oAttachmentModel, "oModelAttach");							
+						}						
+					},
+					error: (oError) => {
+						sap.m.MessageToast.show("Error occurred reading data");
+						console.error(oError);
 					}
 				});
 			}
@@ -218,16 +219,34 @@ sap.ui.define([
 
 		check: function () {
 			const oModel = this.getOwnerComponent().getModel();
-			
-			oModel.read("/AttachmentSet", {
-				urlParameter: {
-					"$top": 1
+
+			oModel.read(`/SalesOrderSet`, {
+				urlParameters: {
+					"$filter": `substringof('20117613', SalesDocument)`
 				},
-				success: (oData) => {
-					console.log("attachment data: ", oData);
-					
+				success: (oOrderData) => {		
+					oModel.read(`/SalesOrderSet`, {
+						urlParameters: {
+							"$filter": `substringof('20117613', SalesDocument)`,
+							"$expand": "ToSalesOrderItems"
+						},
+						success: (oItemsData) => {
+							const aItemsData = oItemsData?.results[0]?.ToSalesOrderItems.results;
+							
+							console.log("data: ", aItemsData);
+							
+						},
+						error: (oError) => {
+							sap.m.MessageBox.error("Failed to load order items.");
+							sap.ui.core.BusyIndicator.hide();
+						}
+					});
+				},
+				error: (oError) => {
+					sap.m.MessageBox.error("Failed to load order header.");
+					sap.ui.core.BusyIndicator.hide();
 				}
-			})
+			});
 		},
 	});
 });

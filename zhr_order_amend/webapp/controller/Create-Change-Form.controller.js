@@ -27,14 +27,17 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			this._setInputElements();
         },
 
-		onAmendmentSelect: function () {
+		onAmendmentSelect: function (oEvent) {
+			const oChkAmendment = oEvent.getSource();
 			const oChkCancellation = this.byId("chkCancellation");
+			const bIsSelected = oChkAmendment.getSelected();
 			const oTblChangeFrom = this.byId("tblChangeFrom");
 			const oTblChangeTo = this.byId("tblChangeTo");
 			
 			oChkCancellation.setSelected(false);
 			oTblChangeFrom.setHeaderText("Change From");
 			oTblChangeTo.setVisible(true);
+			this.byId("btnImport").setEnabled(bIsSelected);
 		},
 
 		onCancellationSelect: function (oEvent) {
@@ -43,15 +46,11 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			const bIsSelected = oChkCancellation.getSelected();
 			const oTblChangeFrom = this.byId("tblChangeFrom");
 			const oTblChangeTo = this.byId("tblChangeTo");
-			oChkAmendment.setSelected(false);
 
-			if (bIsSelected) {
-				oTblChangeFrom.setHeaderText("Cancellation");
-				oTblChangeTo.setVisible(false);
-			} else {
-				oTblChangeFrom.setHeaderText("Change From");
-				oTblChangeTo.setVisible(true);
-			}
+			oChkAmendment.setSelected(false);
+			oTblChangeTo.setVisible(!bIsSelected);
+			this.byId("btnImport").setEnabled(bIsSelected);
+			oTblChangeFrom.setHeaderText(bIsSelected ? "Cancellation" : "Change From");
 		},
 
 		/* =========================================================== */
@@ -342,35 +341,112 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* Change To/From Tables                                       */
 		/* =========================================================== */
         // #region onAddItem
-        onAddItem: function () {
-            const oModel = this.getView().getModel();
-
-            // Handle both tables
-            ["changeFromItems", "changeToItems"].forEach(function (sPath) {
-                const aItems = oModel.getProperty("/" + sPath) || [];
-
-                const oNewItem = {
-                    lineNumber: aItems.length + 1,
-                    uniqueCode: "",
-                    quantity: "",
-                    price: "",
-                    totalAmount: "",
-                    stockAmount: "",
-                    deliveryDate: null
-                };
-
-                aItems.push(oNewItem);
-                oModel.setProperty("/" + sPath, aItems);
-            });
-
-            // Show the total HBox since we now have at least one row
-            const oHBoxChangeFrom = this.byId("hbxChangeFrom");
-            const oHBoxChangeTo = this.byId("hbxChangeTo");
-            if (oHBoxChangeFrom && oHBoxChangeTo) {
-                oHBoxChangeFrom.setVisible(true);
-                oHBoxChangeTo.setVisible(true);
-            }
-        },    
+		onAddItem: function() {
+			// Get the model that contains the selectedItems array
+			var oModel = this.getView().getModel("selectedOrderItems");
+			
+			// Get the current data
+			var oData = oModel.getData();
+			
+			// Ensure selectedItems array exists
+			if (!oData.selectedItems) {
+				oData.selectedItems = [];
+			}
+			
+			// Create a new empty item object
+			var oNewItem = {
+				Item: "", // Line Item No will be empty for new items
+				// Add any other default properties you need
+				// These will be populated by the user via the input controls
+			};
+			
+			// Add the new item to the array
+			oData.selectedItems.push(oNewItem);
+			
+			// Update the model to refresh the binding
+			oModel.setData(oData);
+			
+			// After the model update, modify the new row to have an Input for Line Item No
+			setTimeout(function() {
+				var oTable = this.byId("tblChangeTo");
+				var aItems = oTable.getItems();
+				
+				if (aItems.length > 0) {
+					var oNewRow = aItems[aItems.length - 1]; // Get the last (newly added) row
+					var aCells = oNewRow.getCells();
+					
+					// Replace the Text control in the first cell with an Input control
+					if (aCells[0] && aCells[0].getMetadata().getName() === "sap.m.Text") {
+						// Create new Input control for Line Item No
+						var oLineItemInput = new sap.m.Input({
+							id: this.createId("inLineItemNo_" + (aItems.length - 1)),
+							value: "{selectedOrderItems>Item}",
+							placeholder: ""
+						});
+						
+						// Remove the Text control and add the Input control
+						oNewRow.removeCell(0);
+						oNewRow.insertCell(oLineItemInput, 0);
+						
+						// Focus on the new input
+						oLineItemInput.focus();
+					}
+				}
+			}.bind(this), 100);
+			
+			// Make the total section visible if it's not already
+			var oTotalBox = this.byId("hbxChangeTo");
+			if (oTotalBox) {
+				oTotalBox.setVisible(true);
+			}
+		},
+        // onAddItem: function() {
+		// 	// Get the model that contains the selectedItems array
+		// 	var oModel = this.getView().getModel("selectedOrderItems");
+			
+		// 	// Get the current data
+		// 	var oData = oModel.getData();
+			
+		// 	// Ensure selectedItems array exists
+		// 	if (!oData.selectedItems) {
+		// 		oData.selectedItems = [];
+		// 	}
+			
+		// 	// Create a new empty item object
+		// 	var oNewItem = {
+		// 		Item: "", // Line Item No will be empty for new items
+		// 		// Add any other default properties you need
+		// 		// These will be populated by the user via the input controls
+		// 	};
+			
+		// 	// Add the new item to the array
+		// 	oData.selectedItems.push(oNewItem);
+			
+		// 	// Update the model to refresh the binding
+		// 	oModel.setData(oData);
+			
+		// 	// Make the total section visible if it's not already
+		// 	var oTotalBox = this.byId("hbxChangeTo");
+		// 	if (oTotalBox) {
+		// 		oTotalBox.setVisible(true);
+		// 	}
+			
+		// 	// Optional: Focus on the first input of the new row
+		// 	// You might need to delay this slightly to ensure the row is rendered
+		// 	setTimeout(function() {
+		// 		var oTable = this.byId("tblChangeTo");
+		// 		var aItems = oTable.getItems();
+		// 		if (aItems.length > 0) {
+		// 			var oLastItem = aItems[aItems.length - 1];
+		// 			var aInputs = oLastItem.getCells().filter(function(oCell) {
+		// 				return oCell.getMetadata().getName() === "sap.m.Input";
+		// 			});
+		// 			if (aInputs.length > 0) {
+		// 				aInputs[0].focus();
+		// 			}
+		// 		}
+		// 	}.bind(this), 100);
+		// },
         // #endregion
 
         // #region onDeleteItem
@@ -528,6 +604,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			// Get the source ComboBox that triggered the event
 			const oComboBox = oEvent.getSource();
 			const sSelectedKey = oComboBox.getSelectedKey();
+			const oQuantity = this.byId("inQuantity");
 			
 			// Navigate up to get the current row (ColumnListItem)
 			const oItem = oComboBox.getParent().getParent(); // HBox -> ColumnListItem
@@ -542,6 +619,9 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 					// Set the text based on selected unit
 					if (sSelectedKey === "M") {
 						oNetPriceUnitText.setText("R/M");
+					} else if (sSelectedKey === "100M") {
+						oNetPriceUnitText.setText("R/100M");
+						this._calculateRowTotal("", oQuantity);
 					} else if (sSelectedKey === "KG") {
 						oNetPriceUnitText.setText("R/KG");
 					}
@@ -549,20 +629,28 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			}
 		},
 
-		_calculateRowTotal: function (oEvent) {
+		_calculateRowTotal: function (oEvent, oQuantity) {			
 			// Get the source of the event to find the current row
-			const oSource = oEvent.getSource();
+			const oSource = oEvent != "" ? oEvent.getSource() : oQuantity;
 			const oItem = oSource.getParent().getParent(); // Navigate up to get the ColumnListItem
 			const aCells = oItem.getCells();
 			
 			// Get quantity from the HBox in column 2 (index 2)
 			const oQuantityHBox = aCells[2];
 			let fQuantity = 0;
+			let sQuantityUnit = "";
+			
 			if (oQuantityHBox) {
 				const oQuantityInput = oQuantityHBox.getItems()[0]; // Input is first item in HBox
+				const oQuantityUnitCombo = oQuantityHBox.getItems()[1]; // ComboBox is second item in HBox
+				
 				if (oQuantityInput && oQuantityInput.getValue) {
 					const sQuantityValue = oQuantityInput.getValue();
 					fQuantity = parseFloat(sQuantityValue) || 0;
+				}
+				
+				if (oQuantityUnitCombo && oQuantityUnitCombo.getSelectedKey) {
+					sQuantityUnit = oQuantityUnitCombo.getSelectedKey();
 				}
 			}
 			
@@ -577,15 +665,62 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 				}
 			}
 			
-			// Calculate line total (quantity * net price) and update the Total Amount display
-			const fLineTotal = fQuantity * fNetPrice;
+			// Calculate line total based on quantity unit
+			let fLineTotal = 0;
+			if (sQuantityUnit === "100M") {
+				// For 100M, divide quantity by 100 before multiplying with price
+				fLineTotal = (fQuantity / 100) * fNetPrice;
+			} else {
+				// For M, KG, or any other unit, calculate normally
+				fLineTotal = fQuantity * fNetPrice;
+			}
+			
+			// Update the Total Amount display
 			const oTotalAmountText = aCells[4]; // txtNetValue in column 4
 			if (oTotalAmountText && oTotalAmountText.setText) {
 				oTotalAmountText.setText(this._formatCurrency(fLineTotal.toFixed(2)));
 			}
-
+		
 			this.calculateGrandTotal();
 		},
+
+		// _calculateRowTotal: function (oEvent) {
+		// 	// Get the source of the event to find the current row
+		// 	const oSource = oEvent.getSource();
+		// 	const oItem = oSource.getParent().getParent(); // Navigate up to get the ColumnListItem
+		// 	const aCells = oItem.getCells();
+			
+		// 	// Get quantity from the HBox in column 2 (index 2)
+		// 	const oQuantityHBox = aCells[2];
+		// 	let fQuantity = 0;
+		// 	if (oQuantityHBox) {
+		// 		const oQuantityInput = oQuantityHBox.getItems()[0]; // Input is first item in HBox
+		// 		if (oQuantityInput && oQuantityInput.getValue) {
+		// 			const sQuantityValue = oQuantityInput.getValue();
+		// 			fQuantity = parseFloat(sQuantityValue) || 0;
+		// 		}
+		// 	}
+			
+		// 	// Get net price from the HBox in column 3 (index 3)
+		// 	const oNetPriceHBox = aCells[3];
+		// 	let fNetPrice = 0;
+		// 	if (oNetPriceHBox) {
+		// 		const oNetPriceInput = oNetPriceHBox.getItems()[0]; // Input is first item in HBox
+		// 		if (oNetPriceInput && oNetPriceInput.getValue) {
+		// 			const sNetPriceValue = oNetPriceInput.getValue();
+		// 			fNetPrice = parseFloat(sNetPriceValue) || 0;
+		// 		}
+		// 	}
+			
+		// 	// Calculate line total (quantity * net price) and update the Total Amount display
+		// 	const fLineTotal = fQuantity * fNetPrice;
+		// 	const oTotalAmountText = aCells[4]; // txtNetValue in column 4
+		// 	if (oTotalAmountText && oTotalAmountText.setText) {
+		// 		oTotalAmountText.setText(this._formatCurrency(fLineTotal.toFixed(2)));
+		// 	}
+
+		// 	this.calculateGrandTotal();
+		// },
 
 		calculateGrandTotal: function () {
 			const oTable = this.byId("tblChangeTo");
@@ -771,7 +906,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 					const oContext = oTable.getContextByIndex(iIndex);
 					const oSalesOrder = oContext.getObject();
 					if (oSalesOrder && oSalesOrder.SalesDocument) {
-						this._openSalesOrderDetailDialog(oSalesOrder.SalesDocument);
+						this._openSalesOrderDetailDialog(null, oSalesOrder.SalesDocument);
 					}
 				}
 			});
@@ -834,28 +969,27 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		/* Sales Order Items Value Help                                */
 		/* =========================================================== */
 		// #region Order Items VH
-		_openSalesOrderDetailDialog: function (sSalesDocId) {
+		_openSalesOrderDetailDialog: function (oEvent, sSalesDocId) {
 			const oModel = this.getOwnerComponent().getModel();
-			this._sSalesOrderNo = sSalesDocId;
+			const sSalesDocumentId = sSalesDocId || oEvent.getSource().getValue();
+			this._sSalesOrderNo = sSalesDocumentId;
 
 			sap.ui.core.BusyIndicator.show();
 
 			oModel.read(`/SalesOrderSet`, {
 				urlParameters: {
-					"$filter": `substringof('${sSalesDocId}', SalesDocument)`
+					"$filter": `substringof('${sSalesDocumentId}', SalesDocument)`
 				},
 				success: (oOrderData) => {		
-					// Step 2: Read Sales Order Items (Expand from Navigation Property)
 					oModel.read(`/SalesOrderSet`, {
 						urlParameters: {
-							"$filter": `substringof('${sSalesDocId}', SalesDocument)`,
+							"$filter": `substringof('${sSalesDocumentId}', SalesDocument)`,
 							"$expand": "ToSalesOrderItems"
 						},
 						success: (oItemsData) => {
 							const aItemsData = oItemsData?.results[0]?.ToSalesOrderItems.results;
 
-							// Store header and items in a JSONModel
-							const oOrderDetailsModel = new sap.ui.model.json.JSONModel({
+							const oOrderDetailsModel = new JSONModel({
 								header: oOrderData,
 								items: aItemsData
 							});
@@ -879,9 +1013,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 		},
 
 		_loadSalesOrderDetailsDialog: function (oOrderDetailsModel) {
-			if (this._oSalesOrderDetailsDialog) {
-				this._oSalesOrderDetailsDialog.destroy();
-			}
+			if (this._oSalesOrderDetailsDialog) this._oSalesOrderDetailsDialog.destroy();
 
 			Fragment.load({
 			name: "com.epiuse.zhrorderamend.view.fragments.Sales-Order-Details",
@@ -889,10 +1021,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			}).then((oDialog) => {
 				this._oSalesOrderDetailsDialog = oDialog;
 				this.getView().addDependent(oDialog);
-		
-				// Set the order details model to the dialog
 				oDialog.setModel(oOrderDetailsModel, "orderDetails");
-		
 				oDialog.open();
 			});
 
@@ -910,22 +1039,14 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			const oDialog = oEvent.getSource().getParent();
 			
 			// Find the table within the dialog
-			const oTable = oDialog.getContent()[0].getItems().find(function(item) {
-				return item.isA("sap.m.Table");
-			});
+			const oTable = oDialog.getContent()[0].getItems().find(function(item) { return item.isA("sap.m.Table"); });
 			
-			if (!oTable) {
-				MessageToast.show("Table not found");
-				return;
-			}
+			if (!oTable) { MessageToast.show("Table not found"); return; }
 			
 			// Get selected items from the table
 			const aSelectedItems = oTable.getSelectedItems();
 			
-			if (aSelectedItems.length === 0) {
-				MessageToast.show("Please select at least one item");
-				return;
-			}
+			if (aSelectedItems.length === 0) { MessageToast.show("Please select at least one item"); return; }
 			
 			// Extract data from selected rows
 			let aSelectedData = [];
@@ -939,15 +1060,13 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 					const oSelectedRowData = {
 						Item: oItemData.Item,
 						Material: oItemData.Material,
-						Quantity: oItemData.Quantity,
-						NetPrice: oItemData.NetPrice,
-						NetValue: oItemData.NetValue
+						Quantity: this._formatToTwoDecimals(oItemData.Quantity),
+						NetPrice: this._formatCurrency(oItemData.NetPrice),
+						NetValue: this._formatCurrency(oItemData.NetValue)
 					};
 
-					const oTextControl = this.byId("txtLineItem"); // use global ID if created via JS
-			
+					const oTextControl = this.byId("txtLineItem");
 					if (oTextControl) oTextControl.setText(oItemData.Item);
-
 					aSelectedData.push(oSelectedRowData);
 				}
 			});
@@ -972,8 +1091,9 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 				if (this.byId("tblChangeTo").getVisible()) this.byId("hbxChangeTo").setVisible(true);
 			}
 
-			this._oSalesOrderDetailsDialog.close();
-			this._oSalesOrderDialog.close();
+			this._oSalesOrderDetailsDialog?.close();
+			this._oSalesOrderDialog?.close();
+			this.byId("btnAddItem").setVisible(true);
 		},
 		// #endregion
 		

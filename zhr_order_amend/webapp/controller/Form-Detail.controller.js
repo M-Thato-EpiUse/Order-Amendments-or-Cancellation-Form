@@ -74,18 +74,10 @@ sap.ui.define([
 						this.getOwnerComponent().setModel(oChangeFromModel, "selectedOrderItems");
 
 						const oChangeToModel = new JSONModel({ selectedItems: oPayload.ChangeToItems });
-						this.getOwnerComponent().setModel(oChangeToModel, "changeToItems");		
+						this.getOwnerComponent().setModel(oChangeToModel, "changeToItems");								
 						
-						console.log("items: ", oPayload.ChangeFromItems);
-						
-						
-						if (sRequestTypeCancellation) { 
-							this.byId("tbldChangeTo").setVisible(false); 
-							this.byId("tbldChangeFrom").setHeaderText("Cancellation");
-						} else { 
-							this.byId("tbldChangeTo").setVisible(true); 
-							this.byId("tbldChangeFrom").setHeaderText("Change From");
-						}
+						this.byId("tbldChangeTo").setVisible(!sRequestTypeCancellation);
+						this.byId("tbldChangeFrom").setHeaderText(sRequestTypeCancellation ? "Cancellation" : "Change From");
 
                         this.byId("txtDetailTitle").setText(oPayload.Title || "Amendment/Cancellation Request Form Details");
 
@@ -134,6 +126,8 @@ sap.ui.define([
 			
 							const oAttachmentModel = new JSONModel({ AttachmentDetails: item });
 							this.getOwnerComponent().setModel(oAttachmentModel, "uploadedAttachmentModel");
+							this.getOwnerComponent().getModel("oModelAttach")?.setData(oAttachmentModel) || 
+							this.getOwnerComponent().setModel(oAttachmentModel, "oModelAttach");							
 						}						
 					},
 					error: (oError) => {
@@ -377,6 +371,7 @@ sap.ui.define([
 		// #region _buildPDFHTML
 		_buildPDFHTML: function(data) {
 			const currentDate = this._formatDateToDDMMYYYY(new Date());
+			const isCancellation = data.header.requestType === "Cancellation";
 			
 			return `
 			<!DOCTYPE html>
@@ -511,8 +506,10 @@ sap.ui.define([
 					</div>
 				</div>
 		
-				${this._buildTableHTML('Change From', data.changeFromItems, 'from')}
-				${this._buildTableHTML('Change To', data.changeToItems, 'to')}
+				 ${isCancellation 
+					? this._buildTableHTML('Cancellation', data.changeFromItems, 'from')
+					: this._buildTableHTML('Change From', data.changeFromItems, 'from') + this._buildTableHTML('Change To', data.changeToItems, 'to')
+				}
 		
 				<div class="section-title">Additional Information</div>
 				<div class="form-section">

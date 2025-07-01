@@ -240,14 +240,10 @@ sap.ui.define([
 		},
 
 		// Create a new form request
-		onCreatePress: function (oEvent) {
-
+		onCreatePress: function () {
 			this.getModel("appView").setProperty("/layout", "OneColumn");
-
-			// Nav to the create view
-			this.oRouter.navTo("create", {
-				type: "new"
-			});
+			this.getOwnerComponent().getModel("selectedOrderItems")?.setData("");
+			this.oRouter.navTo("create", { type: "new" });
 		},
 
 		handleConfirmViewSettings: function (oEvent) {

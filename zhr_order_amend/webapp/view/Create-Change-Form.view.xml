@@ -21,7 +21,7 @@
                 </HBox>
 
                 <HBox alignItems="Center" justifyContent="End" renderType="Bare">
-                    <Button icon="sap-icon://add" text="Import Sales Order" press="onOrderSearchVH" />
+                    <Button id="btnImport" icon="sap-icon://add" text="Import Sales Order" press="onOrderSearchVH" enabled="false" />
                 </HBox>
             </HBox>
         </Toolbar>
@@ -87,7 +87,7 @@
                                         <Input id="inContractNo" width="300px" value="{formDetails>/PoContractNumber}" />
 
                                         <Label text="Sales Order No." />
-                                        <Input id="inSalesOrderNo" width="300px" value="{formDetails>/SalesOrderNumber}" enabled="false" />
+                                        <Input id="inSalesOrderNo" width="300px" value="{formDetails>/SalesOrderNumber}" submit="_openSalesOrderDetailDialog"/>
 
                                         <Label text="Request Type" />
                                         <HBox>
@@ -106,7 +106,15 @@
                     <HBox width="100%" justifyContent="SpaceAround">
                         <VBox width="100%" alignItems="Center" justifyContent="Center">
                             <VBox class="sapUiSmallMarginBottom" width="90%">
-                                <Table id="tblChangeFrom" class="customHeaderHeight" headerText="Change From" inset="false" items="{selectedOrderItems>/selectedItems}">
+                                <Table id="tblChangeFrom" class="customHeaderHeight" headerText="Change From" inset="false" items="{
+           path: 'selectedOrderItems>/selectedItems',
+           filters: [{
+               path: 'Item',
+               operator: 'NE',
+               value1: null
+           }]
+       }">
+                                <!-- items="{selectedOrderItems>/selectedItems}"> -->
                                     <columns>
                                         <Column width="8em">
                                             <Text text="Line Item No." />
@@ -183,7 +191,9 @@
                                         <Column width="15em">
                                             <Text text="New Customer Requested Delivery Date" />
                                         </Column>
-                                        <Column width="50px"/>
+                                        <Column width="50px">
+                                            <Button id="btnAddItem" icon="sap-icon://add" press="onAddItem" visible="false" />
+                                        </Column>
                                     </columns>
 
                                     <items>
@@ -196,6 +206,7 @@
                                                     <Input id="inQuantity" type="Number" change="._calculateRowTotal" />
                                                     <ComboBox id="cmbQuantityUnit" width="80px" selectionChange="._quantityUnitSelectionChange">
                                                         <core:Item key="M" text="M" />
+                                                        <core:Item key="100M" text="100M" />
                                                         <core:Item key="KG" text="KG" />
                                                     </ComboBox>
                                                 </HBox>
@@ -312,12 +323,12 @@
                                             <Label text="Plant confirmation (Written email attached to this application form can be counted as the confirmation from plant): Yes" />
 
                                             <upload:UploadSet id="ufuUploadedDocument" showIcons="true" uploadEnabled="true" terminationEnabled="true"
-                                                uploadUrl="/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet" instantUpload="true" items="{path: 'oModelAttach>/items' }"
+                                                uploadUrl="/sap/opu/odata/sap/ZHR_FIORI_FORMS_SRV/AttachmentSet" instantUpload="true" items="{path: 'oModelAttach>/' }"
                                                 beforeUploadStarts="onBeforeUploadStarts" uploadCompleted="onUploadComplete" maxFileSize="5">
                                                 <upload:items>
-                                                    <upload:UploadSetItem fileName="{oModelAttach>fileName}" visibleRemove="true" removePressed="onRemovePressed">
+                                                    <upload:UploadSetItem fileName="{oModelAttach>FileName}" visibleRemove="true" removePressed="onRemovePressed">
                                                         <upload:attributes>
-                                                            <ObjectAttribute title="File Description" text="{oModelAttach>fileName}"/>
+                                                            <ObjectAttribute title="File Description" text="{oModelAttach>FileName}"/>
                                                         </upload:attributes>
                                                     </upload:UploadSetItem>
                                                 </upload:items>
