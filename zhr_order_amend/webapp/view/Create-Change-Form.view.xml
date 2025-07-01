@@ -56,13 +56,14 @@
                                         <Input id="inBranchName" width="300px" value="{formDetails>/BranchOrSectorName}" />
 
                                         <Label text="PO Date" />
-                                        <DatePicker
+                                        <Text id="txtPoDate"/>
+                                        <!-- <DatePicker
                                             id="dtpPoDate"
                                             width="300px"
                                             placeholder="Enter Date"
                                             value="{formDetails>/PoDate}"
                                             displayFormat="dd/MM/yyyy"
-                                            valueFormat="dd/MM/yyyy" />
+                                            valueFormat="dd/MM/yyyy" /> -->
                                     </form:content>
                                 </form:SimpleForm>
                             </VBox>
@@ -84,7 +85,8 @@
                                         <Text id="txtRequestedDate" />
 
                                         <Label text="PO/Contract No." />
-                                        <Input id="inContractNo" width="300px" value="{formDetails>/PoContractNumber}" />
+                                        <Text id="txtPoNumber"/>
+                                        <!-- <Input id="inContractNo" width="300px" value="{formDetails>/PoContractNumber}" /> -->
 
                                         <Label text="Sales Order No." />
                                         <Input id="inSalesOrderNo" width="300px" value="{formDetails>/SalesOrderNumber}" submit="_openSalesOrderDetailDialog"/>
@@ -106,15 +108,7 @@
                     <HBox width="100%" justifyContent="SpaceAround">
                         <VBox width="100%" alignItems="Center" justifyContent="Center">
                             <VBox class="sapUiSmallMarginBottom" width="90%">
-                                <Table id="tblChangeFrom" class="customHeaderHeight" headerText="Change From" inset="false" items="{
-           path: 'selectedOrderItems>/selectedItems',
-           filters: [{
-               path: 'Item',
-               operator: 'NE',
-               value1: null
-           }]
-       }">
-                                <!-- items="{selectedOrderItems>/selectedItems}"> -->
+                                <Table id="tblChangeFrom" class="customHeaderHeight" headerText="Change From" inset="false" items="{selectedOrderItems>/selectedItems}">
                                     <columns>
                                         <Column width="8em">
                                             <Text text="Line Item No." />

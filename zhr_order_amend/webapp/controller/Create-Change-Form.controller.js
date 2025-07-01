@@ -27,6 +27,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			this._setInputElements();
         },
 
+		// ## to be moved
 		onAmendmentSelect: function (oEvent) {
 			const oChkAmendment = oEvent.getSource();
 			const oChkCancellation = this.byId("chkCancellation");
@@ -52,6 +53,7 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 			this.byId("btnImport").setEnabled(bIsSelected);
 			oTblChangeFrom.setHeaderText(bIsSelected ? "Cancellation" : "Change From");
 		},
+		// ##
 
 		/* =========================================================== */
 		/* Global Helper Functions                                     */
@@ -988,6 +990,8 @@ function (BaseController, JSONModel, DateFormat, MessageToast, MessagePopover, M
 						},
 						success: (oItemsData) => {
 							const aItemsData = oItemsData?.results[0]?.ToSalesOrderItems.results;
+
+							// console.log("items: ", aItemsData);
 
 							const oOrderDetailsModel = new JSONModel({
 								header: oOrderData,
